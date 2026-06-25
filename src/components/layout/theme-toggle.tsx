@@ -22,8 +22,8 @@ export function ThemeToggle({ className }: { className?: string }) {
     <Button
       variant="ghost"
       size="icon"
-      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
-      title={`Switch to ${isDark ? "light" : "dark"} mode`}
+      aria-label="Toggle color theme"
+      title="Toggle color theme"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={className}
     >

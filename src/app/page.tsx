@@ -11,6 +11,7 @@ import CommandPalette, {
   useCommandPalette,
 } from "@/components/layout/command-palette";
 import { CustomCursor } from "@/components/ui/custom-cursor";
+import { CanvasErrorBoundary } from "@/components/three/canvas-error-boundary";
 
 import HeroSection from "@/components/sections/hero-section";
 import AboutSection from "@/components/sections/about-section";
@@ -36,8 +37,11 @@ export default function HomePage() {
 
   return (
     <SmoothScroll>
-      {/* Fixed cinematic WebGL background (z-0, lazy, client-only) */}
-      <ImmersiveCanvas />
+      {/* Fixed cinematic WebGL background (z-0, lazy, client-only).
+          Degrades to the CSS gradient if WebGL is unavailable. */}
+      <CanvasErrorBoundary>
+        <ImmersiveCanvas />
+      </CanvasErrorBoundary>
 
       {/* Overlays + progress + cursor: above the canvas, below/around content */}
       <BackgroundFx />

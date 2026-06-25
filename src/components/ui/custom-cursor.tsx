@@ -9,6 +9,7 @@ import {
 } from "motion/react";
 
 import { useIsFinePointer } from "@/hooks/use-media-query";
+import { cn } from "@/lib/utils";
 
 type Variant = "default" | "link" | "view" | "scan";
 
@@ -102,15 +103,11 @@ export function CustomCursor() {
         }}
       >
         <motion.div
-          className="flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/70 font-mono text-[9px] font-semibold uppercase tracking-wider text-primary backdrop-blur-[2px]"
-          animate={{
-            width: size,
-            height: size,
-            backgroundColor:
-              variant === "default"
-                ? "rgba(0,0,0,0)"
-                : "color-mix(in oklab, var(--primary) 16%, transparent)",
-          }}
+          className={cn(
+            "flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/70 font-mono text-[9px] font-semibold uppercase tracking-wider text-primary backdrop-blur-[2px]",
+            variant !== "default" && "bg-primary/15",
+          )}
+          animate={{ width: size, height: size }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
         >
           {label}
