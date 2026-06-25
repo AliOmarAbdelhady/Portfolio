@@ -14,6 +14,7 @@ import {
   Compass,
 } from "lucide-react";
 import { Github } from "@/components/ui/brand-icons";
+import { scrollToSection } from "@/lib/scroll";
 
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS, SITE } from "@/lib/constants";
@@ -29,12 +30,6 @@ type CommandPaletteProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-/** Scroll to a section by id (Lenis-compatible). */
-function scrollToSection(id: string) {
-  if (typeof document === "undefined") return;
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-}
 
 function CommandIcon({
   children,

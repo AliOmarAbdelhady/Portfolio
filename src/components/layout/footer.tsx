@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ArrowUp, Mail } from "lucide-react";
 import { Github, Linkedin } from "@/components/ui/brand-icons";
+import { scrollToSection } from "@/lib/scroll";
 
 import { NAV_ITEMS, SITE } from "@/lib/constants";
 import { SOCIAL_LINKS } from "@/data/social-links";
@@ -25,8 +26,7 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
 };
 
 function scrollToTop() {
-  if (typeof document === "undefined") return;
-  document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
+  scrollToSection("hero");
 }
 
 export default function Footer() {

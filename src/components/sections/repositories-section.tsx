@@ -215,17 +215,7 @@ function RepositoryCard({
       tilt
       glow
       data-cursor="view"
-      role="button"
-      tabIndex={0}
-      aria-label={`View details for ${repo.name}`}
-      onClick={() => onOpen(repo)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onOpen(repo);
-        }
-      }}
-      className="group relative flex h-full cursor-pointer flex-col p-5 text-left transition-transform duration-300 hover:-rotate-[0.4deg]"
+      className="group relative flex h-full flex-col p-5 text-left transition-transform duration-300 hover:-rotate-[0.4deg]"
     >
       {/* Top row: status + showcase / year */}
       <div className="mb-4 flex items-center justify-between gap-2">

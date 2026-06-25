@@ -13,6 +13,7 @@ import { Github } from "@/components/ui/brand-icons";
 import { SITE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Magnetic } from "@/components/ui/magnetic-button";
+import { scrollToSection } from "@/lib/scroll";
 
 /* -------------------------------------------------------------------------- */
 /*  Constants                                                                  */
@@ -153,11 +154,7 @@ export default function HeroSection() {
               variant="glow"
               size="lg"
               data-cursor="view"
-              onClick={() => {
-                document
-                  .getElementById("projects")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }}
+              onClick={() => scrollToSection("projects")}
             >
               Explore Projects
               <ArrowRight className="ml-0.5" />
@@ -201,11 +198,7 @@ export default function HeroSection() {
           custom={5}
           initial="hidden"
           animate="visible"
-          onClick={() =>
-            document
-              .getElementById("about")
-              ?.scrollIntoView({ behavior: "smooth" })
-          }
+          onClick={() => scrollToSection("about")}
           aria-label="Scroll to about section"
           className="group mt-16 flex flex-col items-center gap-2 text-text-soft transition-colors hover:text-primary"
         >

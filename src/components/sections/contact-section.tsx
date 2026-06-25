@@ -172,12 +172,14 @@ function ChannelCard({ link }: { link: SocialLink }) {
               {link.label}
             </p>
             <p className="truncate font-mono text-xs text-muted-foreground">
-              {link.placeholder ? "set link" : link.href.replace(/^mailto:/, "")}
+              {link.href && link.href !== "#"
+                ? link.href.replace(/^mailto:/, "")
+                : "set link"}
             </p>
           </div>
             {link.placeholder ? (
               <Badge variant="warning" className="mt-auto">
-                set link
+                {link.icon === "mail" ? "verify" : "set link"}
               </Badge>
             ) : null}
           </a>

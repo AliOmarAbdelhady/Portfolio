@@ -51,7 +51,7 @@ export default function HomePage() {
       {/* App shell */}
       <Navbar onOpenCommandPalette={() => palette.setOpen(true)} />
 
-      <main className="relative z-10">
+      <main id="main" tabIndex={-1} className="relative z-10 focus:outline-none">
         <HeroSection />
         <AboutSection />
         <SkillsSection />

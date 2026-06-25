@@ -39,5 +39,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     label: "Email",
     href: `mailto:${SITE.email}`,
     icon: "mail",
+    // The email value is a best-guess placeholder until confirmed in SITE.
+    placeholder: true,
   },
 ];

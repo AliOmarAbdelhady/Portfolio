@@ -7,6 +7,14 @@
  * - pointerState: normalized (-1..1) + pixel pointer position.
  */
 
+import type Lenis from "lenis";
+
+/**
+ * Holds the active Lenis instance so non-React callers (the `scrollToSection`
+ * util used by nav links / CTAs) can drive smooth, eased scrolling.
+ */
+export const lenisInstance: { current: Lenis | null } = { current: null };
+
 export const scrollState = {
   progress: 0,
   y: 0,

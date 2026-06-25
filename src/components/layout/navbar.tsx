@@ -6,6 +6,7 @@ import { Menu, Command } from "lucide-react";
 import { Github } from "@/components/ui/brand-icons";
 
 import { cn } from "@/lib/utils";
+import { scrollToSection } from "@/lib/scroll";
 import { NAV_ITEMS, SITE } from "@/lib/constants";
 import { SOCIAL_LINKS } from "@/data/social-links";
 import { Button } from "@/components/ui/button";
@@ -24,12 +25,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-
-/** Smoothly scroll to a section by id (compatible with Lenis). */
-function scrollToSection(id: string) {
-  if (typeof document === "undefined") return;
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-}
 
 export default function Navbar({
   onOpenCommandPalette,

@@ -5,7 +5,7 @@ import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { scrollState, attachPointer } from "@/lib/runtime-state";
+import { scrollState, attachPointer, lenisInstance } from "@/lib/runtime-state";
 
 /**
  * Boot the smooth-scroll engine.
@@ -36,6 +36,7 @@ export function useLenis(enabled = true) {
       touchMultiplier: 1.4,
       lerp: 0.1,
     });
+    lenisInstance.current = lenis;
 
     const updateLimit = () => {
       scrollState.limit = document.documentElement.scrollHeight - window.innerHeight;
@@ -72,6 +73,7 @@ export function useLenis(enabled = true) {
       window.removeEventListener("resize", onResize);
       gsap.ticker.remove(raf);
       detachPointer();
+      lenisInstance.current = null;
       lenis.destroy();
     };
   }, [enabled]);

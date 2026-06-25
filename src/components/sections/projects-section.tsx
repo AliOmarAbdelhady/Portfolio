@@ -87,17 +87,7 @@ function ProjectCard({
       tilt
       glow
       data-cursor="view"
-      role="button"
-      tabIndex={0}
-      aria-label={`View details for ${project.title}`}
-      onClick={() => onOpen(project)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onOpen(project);
-        }
-      }}
-      className="group flex h-full cursor-pointer flex-col p-5 text-left"
+      className="group flex h-full flex-col p-5 text-left"
     >
       {/* Top row: category + year */}
       <div className="mb-4 flex items-center justify-between gap-2">
