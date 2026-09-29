@@ -12,6 +12,7 @@ import CommandPalette, {
 } from "@/components/layout/command-palette";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import { CanvasErrorBoundary } from "@/components/three/canvas-error-boundary";
+import { ChatWidget } from "@/components/chat/chat-widget";
 
 import HeroSection from "@/components/sections/hero-section";
 import AboutSection from "@/components/sections/about-section";
@@ -20,6 +21,7 @@ import ProjectsSection from "@/components/sections/projects-section";
 import RepositoriesSection from "@/components/sections/repositories-section";
 import AiLabSection from "@/components/sections/ai-lab-section";
 import DataSection from "@/components/sections/data-section";
+import ExperienceSection from "@/components/sections/experience-section";
 import TimelineSection from "@/components/sections/timeline-section";
 import ContactSection from "@/components/sections/contact-section";
 
@@ -59,6 +61,7 @@ export default function HomePage() {
         <RepositoriesSection />
         <AiLabSection />
         <DataSection />
+        <ExperienceSection />
         <TimelineSection />
         <ContactSection />
       </main>
@@ -66,6 +69,9 @@ export default function HomePage() {
       <Footer />
 
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
+
+      {/* Ali Abdelhady AI assistant — floating launcher (⌘J), lazy panel */}
+      <ChatWidget />
     </SmoothScroll>
   );
 }

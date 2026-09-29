@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import {
   motion,
   AnimatePresence,
@@ -90,6 +91,34 @@ export default function HeroSection() {
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
             </span>
             System Online · Neural Road Active
+          </span>
+        </motion.div>
+
+        {/* Portrait — liquid-morphing halo around the GitHub avatar */}
+        <motion.div
+          variants={variants}
+          custom={0.5}
+          initial="hidden"
+          animate="visible"
+          className="relative mt-8"
+        >
+          <span
+            aria-hidden
+            className="absolute -inset-2.5 animate-liquid-morph bg-gradient-to-br from-primary/50 via-accent/45 to-primary-glow/50 opacity-80 blur-md"
+          />
+          <span
+            aria-hidden
+            className="absolute -inset-1 rounded-full border border-primary/30"
+          />
+          <span className="relative block size-28 overflow-hidden rounded-full border border-primary/50 bg-surface shadow-[0_0_44px_-8px_color-mix(in_oklab,var(--primary)_75%,transparent)] md:size-32">
+            <Image
+              src={SITE.avatarUrl}
+              alt={`${SITE.name} portrait`}
+              fill
+              sizes="(min-width: 768px) 128px, 112px"
+              priority
+              className="object-cover"
+            />
           </span>
         </motion.div>
 

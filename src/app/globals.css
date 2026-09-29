@@ -192,6 +192,9 @@
   --animate-gradient-pan: gradient-pan 8s ease infinite;
   --animate-blink: blink 1.1s step-end infinite;
   --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-liquid-morph: liquid-morph 9s ease-in-out infinite;
+  --animate-aurora: aurora 8s ease-in-out infinite;
+  --animate-aurora-slow: aurora-slow 11s ease-in-out infinite;
 }
 
 /* =========================================================================
@@ -496,6 +499,42 @@ h1, h2, h3, h4 {
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+/* Liquid ambience for the AI chat — organic blob morphing + drifting glow. */
+@keyframes liquid-morph {
+  0%, 100% {
+    border-radius: 42% 58% 60% 40% / 52% 44% 56% 48%;
+    transform: rotate(0deg) scale(1);
+  }
+  33% {
+    border-radius: 58% 42% 38% 62% / 44% 58% 42% 56%;
+    transform: rotate(40deg) scale(1.06);
+  }
+  66% {
+    border-radius: 48% 52% 62% 38% / 58% 46% 54% 42%;
+    transform: rotate(-25deg) scale(0.97);
+  }
+}
+@keyframes aurora {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateX(-46%) translateY(14px) scale(1.12);
+    opacity: 1;
+  }
+}
+@keyframes aurora-slow {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-18px, -12px) scale(1.15);
+    opacity: 0.9;
   }
 }
 
