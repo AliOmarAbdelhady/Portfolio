@@ -46,7 +46,11 @@ Set in **Settings → Secrets and variables → Actions**:
   handled by `deploy.yml` instead. If you reconnect GitHub in the Vercel
   dashboard (Settings → Git Integration), **remove `deploy.yml`** so pushes
   don't deploy twice.
-- Environment variables (`NEXT_PUBLIC_SITE_URL`, …) are configured in the
-  Vercel project settings and pulled in at build time — never committed here.
+- Environment variables are configured in the Vercel project settings and
+  pulled in at build/runtime time — never committed here. Currently:
+  `NEXT_PUBLIC_SITE_URL` (SEO) and `GROQ_API_KEY` (powers the
+  `/api/chat` AI assistant; server-side only, with per-IP rate limits,
+  strict input validation, and a topic-locked system prompt — see
+  `src/app/api/chat/route.ts` and `src/lib/chatbot-knowledge.ts`).
 - Optional hardening: add a branch protection rule for `main` requiring the
   `Lint · Typecheck · Build` and `Vercel` checks before merge.
