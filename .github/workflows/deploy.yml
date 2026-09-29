@@ -78,4 +78,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           NUMBER: ${{ github.event.pull_request.number }}
           URL: ${{ steps.deploy.outputs.url }}
-        run: gh pr comment "$NUMBER" --repo "$GITHUB_REPOSITORY" --body "🔮 Preview deployed: $URL"
+        run: |
+          gh pr comment "$NUMBER" --repo "$GITHUB_REPOSITORY" --body "🔮 Preview deployed: $URL"
