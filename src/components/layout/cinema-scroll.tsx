@@ -225,9 +225,12 @@ export function CinemaScroll({ children }: { children?: React.ReactNode }) {
 
         const far = a === 0 || d === 1;
 
-        // Visibility / interactivity / a11y for far layers.
+        // Visibility / interactivity / a11y for far layers. Note the
+        // `!== "0"` guard: on the FIRST paint no layer is marked yet, and
+        // every far layer must still be hidden (otherwise the footer and all
+        // deeper sections stack invisibly over the hero in DOM order).
         if (far) {
-          if (L.el.dataset.cinemaNear === "1") {
+          if (L.el.dataset.cinemaNear !== "0") {
             L.el.style.visibility = "hidden";
             L.el.style.pointerEvents = "none";
             L.el.setAttribute("aria-hidden", "true");

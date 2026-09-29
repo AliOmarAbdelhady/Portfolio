@@ -89,13 +89,32 @@ export function clamp(v: number, min: number, max: number): number {
 
 /**
  * (Re)build the depth plan from the live layer elements. Called on mount,
- * resize, and once after assets settle. `g` is preserved proportionally.
+ * resize, and whenever a layer's height changes (filters collapsing grids,
+ * accordions, images loading).
+ *
+ * Re-measures NEVER re-anchor the camera absolutely — that would snap the
+ * scene whenever a filter re-layouts a section. Instead the camera keeps its
+ * relative position inside the layer it is currently in (same fraction of
+ * that layer's dwell), and an in-flight glide is preserved.
  */
 export function planCinema(layers: HTMLElement[]) {
   const vh =
     typeof window === "undefined" ? 0 : window.visualViewport?.height ?? window.innerHeight;
-  const prevLimit = cinema.limit;
-  const ratio = prevLimit > 0 ? cinema.y / prevLimit : 0;
+  const firstPlan = cinema.layers.length === 0 || cinema.limit === 0;
+
+  // Where were we inside the old plan? Prefer the active layer; fall back to
+  // whichever layer's window contains the camera.
+  const prev =
+    cinema.layers.find((L) => L.id === cinema.activeId) ||
+    cinema.layers.find((L) => cinema.y >= L.b - TRANSITION && cinema.y <= L.b + L.dwell + TRANSITION) ||
+    null;
+  const anchor =
+    prev && prev.dwell > 0
+      ? { id: prev.id, frac: clamp((cinema.y - prev.b) / prev.dwell, 0, 1) }
+      : prev
+        ? { id: prev.id, frac: 0 }
+        : null;
+  const settled = Math.abs(cinema.target - cinema.y) < 0.01;
 
   let b = 0;
   cinema.layers = layers.map((el) => {
@@ -109,8 +128,21 @@ export function planCinema(layers: HTMLElement[]) {
   // The last layer has no depart band.
   cinema.limit = Math.max(0, b - (cinema.layers.length > 0 ? TRANSITION : 0));
 
-  cinema.target = clamp(ratio * cinema.limit, 0, cinema.limit);
-  cinema.y = cinema.target;
+  if (firstPlan) {
+    cinema.y = 0;
+    cinema.target = 0;
+  } else {
+    // Glue the camera to the same relative spot inside its (possibly
+    // re-measured) layer so filter re-layouts never jolt the scene.
+    const anchorLayer = anchor ? cinema.layers.find((L) => L.id === anchor.id) : null;
+    if (anchorLayer && anchor) {
+      cinema.y = anchorLayer.b + anchor.frac * anchorLayer.dwell;
+    } else {
+      cinema.y = clamp(cinema.y, 0, cinema.limit);
+    }
+    cinema.target = settled ? cinema.y : clamp(cinema.target, 0, cinema.limit);
+  }
+
   cinema.progress = cinema.limit > 0 ? clamp(cinema.y / cinema.limit, 0, 1) : 0;
   updateActive();
   notify();

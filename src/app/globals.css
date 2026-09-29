@@ -568,7 +568,10 @@ html.cinema-mode body {
 }
 
 /* Layers: stacked depth planes. Width locked to the stage, height natural
-   (content taller than the viewport pans INSIDE the layer while centred). */
+   (content taller than the viewport pans INSIDE the layer while centred).
+   Everything except the first layer starts hidden — pre-hydration the page
+   shows only the landing station, and the controller reveals layers as the
+   camera approaches them (the footer is the LAST station, not an overlay). */
 .cinema-stage > main {
   position: absolute;
   inset: 0;
@@ -580,9 +583,14 @@ html.cinema-mode body {
   top: 0;
   left: 0;
   right: 0;
+  visibility: hidden;
   will-change: transform, opacity;
   backface-visibility: hidden;
   transform-origin: 50% 50%;
+}
+
+.cinema-stage > main > section:first-child {
+  visibility: visible;
 }
 
 /* Respect reduced motion everywhere. */
