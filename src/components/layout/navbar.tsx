@@ -38,41 +38,15 @@ export default function Navbar({
   const [active, setActive] = React.useState<string>(NAV_ITEMS[0]?.id ?? "hero");
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  // Track virtual scroll position to toggle the blurred bar (no native
-  // scroll events exist in cinema mode — subscribe to the engine instead).
+  // Track virtual camera depth to toggle the blurred bar, and the engine's
+  // active layer for the scroll-spy (no native scroll / IO in cinema mode).
   React.useEffect(() => {
-    const update = () => setScrolled(cinema.y > 24);
+    const update = () => {
+      setScrolled(cinema.y > 0.1);
+      if (cinema.activeId) setActive(cinema.activeId);
+    };
     update();
     return subscribeCinema(update);
-  }, []);
-
-  // Scroll-spy: highlight the active section via IntersectionObserver.
-  React.useEffect(() => {
-    const ids = NAV_ITEMS.map((item) => item.id);
-    const elements = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (elements.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Pick the most visible intersecting section.
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]) {
-          setActive(visible[0].target.id);
-        }
-      },
-      {
-        // Bias the root viewport so mid-page sections activate appropriately.
-        rootMargin: "-45% 0px -45% 0px",
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-      },
-    );
-
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
   }, []);
 
   const handleNavClick = (e: React.MouseEvent, id: string) => {

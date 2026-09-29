@@ -4,6 +4,7 @@ import * as React from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
+import { useLayerActive } from "@/components/layout/cinema-scroll";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -20,33 +21,45 @@ type RevealProps = {
 };
 
 /**
- * Scroll-triggered reveal. Animates opacity + translate + blur on enter.
- * Collapses to a plain element when the user prefers reduced motion.
+ * Layer-arrival reveal. Animates opacity + translate + blur when the cinema
+ * camera is inside the section that owns this element — the dolly equivalent
+ * of a scroll reveal. Collapses to a plain element under reduced motion.
  */
 export function Reveal({
   children,
   className,
   delay = 0,
   y = 28,
-  once = true,
   as = "div",
 }: RevealProps) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
+  const active = useLayerActive(ref);
   const Comp = motion[as as "div"] as typeof motion.div;
+
+  // `once` is kept for API compatibility; in cinema mode reveals replay when
+  // the camera re-enters a layer, which is the intended station behaviour.
+  const state = active
+    ? { opacity: 1, y: 0, filter: "blur(0px)" }
+    : { opacity: 0, y, filter: "blur(8px)" };
 
   if (reduce) {
     const Tag = as as unknown as React.ComponentType<
-      React.HTMLAttributes<HTMLElement>
+      React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> }
     >;
-    return <Tag className={className}>{children}</Tag>;
+    return (
+      <Tag ref={ref} className={className}>
+        {children}
+      </Tag>
+    );
   }
 
   return (
     <Comp
+      ref={ref}
       className={className}
-      initial={{ opacity: 0, y, filter: "blur(8px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once, margin: "-80px" }}
+      initial={false}
+      animate={state}
       transition={{ duration: 0.7, ease: EASE, delay }}
     >
       {children}
@@ -68,17 +81,18 @@ export function StaggerGroup({
   className,
   stagger = 0.08,
   delayChildren = 0,
-  once = true,
 }: StaggerGroupProps) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
-  if (reduce) return <div className={className}>{children}</div>;
+  const active = useLayerActive(ref);
+  if (reduce) return <div ref={ref} className={className}>{children}</div>;
 
   return (
     <motion.div
+      ref={ref}
       className={className}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once, margin: "-80px" }}
+      animate={active ? "visible" : "hidden"}
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: stagger, delayChildren } },

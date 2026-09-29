@@ -549,8 +549,9 @@ h1, h2, h3, h4 {
 }
 
 /* =========================================================================
-   CINEMA SCROLL — virtual document scroll (no scrollbar)
-   The stage is a fixed viewport; the track translates by −y inside it.
+   CINEMA DOLLY — you zoom INTO the page; there is no scroll and no track.
+   Every section (and the footer) is a full-screen depth layer; the engine
+   scales/pans/fades each layer from the camera depth each frame.
    ========================================================================= */
 html.cinema-mode,
 html.cinema-mode body {
@@ -564,18 +565,23 @@ html.cinema-mode body {
   inset: 0;
   z-index: 10;
   overflow: hidden;
-  /* Layers the per-section zoom behind fixed overlays without stacking issues. */
-  transform-style: preserve-3d;
 }
 
-.cinema-track {
-  will-change: transform;
+/* Layers: stacked depth planes. Width locked to the stage, height natural
+   (content taller than the viewport pans INSIDE the layer while centred). */
+.cinema-stage > main {
+  position: absolute;
+  inset: 0;
+}
+
+.cinema-stage > main > section,
+.cinema-stage > footer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  will-change: transform, opacity;
   backface-visibility: hidden;
-}
-
-/* Sections zoom gently as they travel through the stage (JS drives the
-   values; this just smooths micro-jitter and resets cleanly). */
-.cinema-track > main > section {
   transform-origin: 50% 50%;
 }
 

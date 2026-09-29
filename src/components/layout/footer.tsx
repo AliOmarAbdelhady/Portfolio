@@ -42,7 +42,7 @@ export default function Footer() {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <footer className="relative mt-24 border-t border-border/60">
+      <footer id="footer" className="relative mt-24 border-t border-border/60">
         {/* Glassy top hairline glow */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 

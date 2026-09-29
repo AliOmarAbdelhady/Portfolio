@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { useInView, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
+import { useLayerActive } from "@/components/layout/cinema-scroll";
 
 type StatCounterProps = {
   value: number;
@@ -14,7 +15,8 @@ type StatCounterProps = {
 };
 
 /**
- * Counts up to `value` when scrolled into view. Reduced-motion renders final.
+ * Counts up to `value` when the cinema camera is inside the owning section.
+ * Reduced-motion renders final.
  */
 export function StatCounter({
   value,
@@ -24,7 +26,7 @@ export function StatCounter({
   className,
 }: StatCounterProps) {
   const ref = React.useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const inView = useLayerActive(ref);
   const reduce = useReducedMotion();
   const [display, setDisplay] = React.useState(0);
 

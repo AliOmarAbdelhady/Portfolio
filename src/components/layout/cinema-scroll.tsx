@@ -6,41 +6,57 @@ import { scrollState, attachPointer } from "@/lib/runtime-state";
 import {
   cinema,
   subscribeCinema,
-  measureCinema,
-  cinemaScrollBy,
-  cinemaScrollTo,
+  planCinema,
   clamp,
   stepCinema,
+  cinemaScrollBy,
+  cinemaScrollTo,
+  cinemaGotoLayer,
+  cinemaStepLayer,
+  findLayer,
+  TRANSITION,
 } from "@/lib/cinema-scroll";
 
 /**
- * CinemaScroll — replaces native document scrolling with a virtual one.
+ * CinemaScroll — the dolly camera. There is NO page scroll and no vertical
+ * track: every section (and the footer) is a full-screen depth layer stacked
+ * in the stage. A single damped depth value is the camera position.
  *
- * The page becomes a fixed, overflow-hidden stage; the full content track is
- * translated by −y inside it. Wheel / touch / keyboard accumulate into a
- * target, a rAF loop damps y toward it (buttery glide), and three things stay
- * perfectly in sync from that single value:
+ * Paint per frame, per layer (see cinema-scroll.ts for the depth plan):
  *
- *   1. the DOM track translate (what the visitor "scrolls"),
- *   2. `scrollState` (the 3D camera travelling along the neural road),
- *   3. `cinema` subscribers (navbar tint, progress bar, timeline line).
+ *   approach  scale 0.30 → 1.00, fading in  — the scene flies TOWARD you
+ *   dwell     scale 1, content pans inside the layer when taller than the
+ *             viewport — you are INSIDE the scene, not under it
+ *   depart    scale grows past the screen edges + fade — the grids and
+ *             buttons sweep off the monitor as you plunge deeper
  *
- * Sections also get a subtle scale/opacity ramp by distance from the viewport
- * centre — the "zooming through stations" feel. Reduced motion snaps instead
- * of gliding and disables the ramp.
- *
- * Elements marked `data-cinema-prevent` (the AI chat panel) keep native
- * scrolling — the controller ignores gestures that start inside them.
+ * The 3D road camera, progress bar, navbar tint and scroll-spy all read the
+ * same depth. Elements marked `data-cinema-prevent` (the AI chat) keep their
+ * own native scrolling; gestures that start inside them are ignored.
  */
 
-const NAVBAR_OFFSET = 76;
+/** Context: id of the layer the camera is currently inside. Reveal
+ *  animations gate on it (IntersectionObserver can't — every layer is
+ *  technically "in viewport" at all times in this model). */
+export const CinemaActiveContext = React.createContext<string | null>("hero");
 
-/** Wheel multipliers. deltaMode 1 = lines (Firefox) → px. */
-function wheelDelta(e: WheelEvent): number {
-  const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * 100 : e.deltaY;
-  // Trackpads fire many tiny events; wheels few big ones. Cap spikes so a
-  // single fierce flick advances at most ~a viewport.
-  return clamp(d, -240, 240);
+/**
+ * True while the camera is inside the layer that owns this element —
+ * the cinema equivalent of "is in view". Callers pass a ref to any element
+ * inside a section/footer; ownership is resolved once via closest().
+ */
+export function useLayerActive(
+  ref: React.RefObject<HTMLElement | null>,
+): boolean {
+  const activeId = React.useContext(CinemaActiveContext);
+  const [ownerId, setOwnerId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const owner = ref.current?.closest("section, footer");
+    setOwnerId(owner?.id || null);
+  }, [ref]);
+
+  return ownerId === null ? true : ownerId === activeId;
 }
 
 function insidePrevent(target: EventTarget | null): boolean {
@@ -57,95 +73,95 @@ function focusInEditable(target: EventTarget | null): boolean {
   return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
 }
 
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeInCubic = (t: number) => t * t * t;
+
 export function CinemaScroll({ children }: { children?: React.ReactNode }) {
-  const trackRef = React.useRef<HTMLDivElement>(null);
+  const stageRef = React.useRef<HTMLDivElement>(null);
+  const [activeId, setActiveId] = React.useState<string | null>("hero");
 
   React.useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
+    const stage = stageRef.current;
+    if (!stage) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const html = document.documentElement;
     html.classList.add("cinema-mode");
 
-    /* ------------------------------ measuring ----------------------------- */
+    /* ------------------------------ layers ------------------------------- */
 
-    const sections = Array.from(track.querySelectorAll<HTMLElement>("main > section"));
-
-    const measure = () => {
-      measureCinema(track.scrollHeight);
+    const collectLayers = (): HTMLElement[] => {
+      const main = stage.querySelector("main");
+      const sections = main ? Array.from(main.children) : [];
+      const footer = Array.from(stage.children).filter(
+        (el) => el.tagName === "FOOTER" || el.id === "footer",
+      );
+      return [...sections, ...footer] as HTMLElement[];
     };
-    measure();
+    const layers = collectLayers();
+    planCinema(layers);
+
+    const measure = () => planCinema(collectLayers());
     const ro = new ResizeObserver(() => measure());
-    ro.observe(track);
+    layers.forEach((el) => ro.observe(el));
     window.addEventListener("resize", measure);
     // Late assets (fonts, avatars) change layout — remeasure once settled.
-    const settle = window.setTimeout(measure, 800);
+    const settle = window.setTimeout(measure, 900);
 
-    /* -------------------------- deep link (#about) ------------------------ */
+    /* -------------------------- deep link (#about) ---------------------- */
 
-    const jumpToHash = (hash: string, immediate: boolean) => {
-      const id = hash.replace(/^#/, "");
-      const el = id ? document.getElementById(id) : null;
-      if (!el) return;
-      const top = el.getBoundingClientRect().top + cinema.y - NAVBAR_OFFSET;
-      cinemaScrollTo(top, immediate || reducedMotion);
-    };
-    if (window.location.hash) jumpToHash(window.location.hash, true);
+    if (window.location.hash) {
+      const id = window.location.hash.replace(/^#/, "");
+      if (findLayer(id)) cinemaGotoLayer(id, true);
+    }
 
-    /* ------------------------------- input -------------------------------- */
+    /* ------------------------------- input ------------------------------ */
+
+    const vh = () => window.visualViewport?.height ?? window.innerHeight;
 
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey || insidePrevent(e.target)) return; // pinch-zoom + chat
       e.preventDefault();
-      cinemaScrollBy(wheelDelta(e));
+      const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * 100 : e.deltaY;
+      cinemaScrollBy(clamp(d / vh(), -0.6, 0.6) * 1.15);
     };
 
     let touchY = 0;
     let touchX = 0;
-    let touchTarget = 0;
+    let touchDepth = 0;
     let touchLocked = false;
     const onTouchStart = (e: TouchEvent) => {
       if (insidePrevent(e.target)) return;
       touchY = e.touches[0].clientY;
       touchX = e.touches[0].clientX;
-      touchTarget = cinema.target;
+      touchDepth = cinema.target;
       touchLocked = false;
     };
     const onTouchMove = (e: TouchEvent) => {
       if (insidePrevent(e.target)) return;
       const dy = touchY - e.touches[0].clientY;
       const dx = Math.abs(touchX - e.touches[0].clientX);
-      // Only claim the gesture once it is clearly vertical.
       if (!touchLocked) {
         if (Math.abs(dy) < 8 || Math.abs(dy) <= dx) return;
         touchLocked = true;
       }
       e.preventDefault();
-      cinema.target = clamp(touchTarget + dy * 1.7, 0, cinema.limit);
+      cinema.target = clamp(touchDepth + (dy / vh()) * 1.5, 0, cinema.limit);
+      cinemaScrollBy(0); // nudge: notify + kick without changing target twice
     };
 
     const onKey = (e: KeyboardEvent) => {
       if (focusInEditable(e.target) || insidePrevent(e.target)) return;
-      const vh = window.visualViewport?.height ?? window.innerHeight;
-      let delta: number | null = null;
       switch (e.key) {
-        case "ArrowDown": delta = 320; break;
-        case "ArrowUp": delta = -320; break;
-        case "PageDown": delta = vh * 0.9; break;
-        case "PageUp": delta = -vh * 0.9; break;
-        case " ":
-          if (e.shiftKey) delta = -vh * 0.9; else delta = vh * 0.9;
-          break;
-        case "Home": cinemaScrollTo(0); e.preventDefault(); return;
-        case "End": cinemaScrollTo(cinema.limit); e.preventDefault(); return;
-        case "Enter":
-          if (e.target === document.body) { jumpToHash("#about", false); }
-          return;
+        case "ArrowDown": e.preventDefault(); cinemaScrollBy(0.16); break;
+        case "ArrowUp": e.preventDefault(); cinemaScrollBy(-0.16); break;
+        case "PageDown": e.preventDefault(); cinemaStepLayer(1); break;
+        case "PageUp": e.preventDefault(); cinemaStepLayer(-1); break;
+        case " ": e.preventDefault(); cinemaStepLayer(e.shiftKey ? -1 : 1); break;
+        case "Home": e.preventDefault(); cinemaScrollTo(0); break;
+        case "End": e.preventDefault(); cinemaScrollTo(cinema.limit); break;
         default: return;
       }
-      e.preventDefault();
-      if (delta) cinemaScrollBy(delta);
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -153,74 +169,124 @@ export function CinemaScroll({ children }: { children?: React.ReactNode }) {
     window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("keydown", onKey);
 
-    /* ---------------------------- damping loop ---------------------------- */
-    // Run frames only while the glide is in flight; park when settled.
+    /* ---------------------------- dolly loop ---------------------------- */
+    // Frames while the glide is in flight; parked when settled. rAF is the
+    // preferred clock; a timer takes over if the host starves rAF (hidden
+    // panes, embedded webviews) so the camera never freezes mid-glide.
 
     let raf = 0;
+    let timer = 0;
     let last = performance.now();
+    let lastTick = 0;
     let idle = true;
+    let lastActive: string | null = null;
 
-    /** Translate the track, feed the 3D camera state, zoom nearby sections. */
-    const paint = () => {
-      track.style.transform = `translate3d(0, ${-Math.round(cinema.y * 100) / 100}px, 0)`;
-
-      // Mirror into the shared scrollState the WebGL camera reads every frame.
-      scrollState.y = cinema.y;
-      scrollState.velocity = cinema.velocity;
-      scrollState.limit = cinema.limit;
-      scrollState.progress = cinema.progress;
-
-      if (!reducedMotion) {
-        const vh = window.visualViewport?.height ?? window.innerHeight;
-        const centre = cinema.y + vh / 2;
-        for (const section of sections) {
-          const rect = section.getBoundingClientRect();
-          const dist = rect.top + cinema.y + rect.height / 2 - centre;
-          const r = Math.min(Math.abs(dist) / vh, 1.5); // 0 = centred
-          if (r >= 1.2) {
-            if (section.dataset.zoomed === "1") {
-              section.style.transform = "";
-              section.style.opacity = "";
-              section.dataset.zoomed = "0";
-            }
-            continue;
-          }
-          // Fully visible → 1.0; a viewport away → 0.965 + slight fade.
-          const t = r / 1.2;
-          const scale = 1 - t * t * 0.035;
-          const opacity = 1 - t * t * 0.22;
-          section.style.transform = `scale(${scale.toFixed(4)})`;
-          section.style.opacity = opacity.toFixed(3);
-          section.dataset.zoomed = "1";
-        }
-      }
+    const scheduleNext = () => {
+      raf = requestAnimationFrame((n) => tick(n));
+      timer = window.setTimeout(() => {
+        cancelAnimationFrame(raf);
+        timer = window.setTimeout(() => tick(performance.now()), 0);
+      }, 120);
     };
 
-    const loop = (now: number) => {
-      const dt = Math.min((now - last) / 1000, 0.05);
+    const tick = (now: number) => {
+      clearTimeout(timer);
+      cancelAnimationFrame(raf);
+      // Both clocks may fire for the same frame — take the first only.
+      if (now - lastTick < 8) {
+        scheduleNext();
+        return;
+      }
+      lastTick = now;
+
+      const dt = Math.min((now - last) / 1000, 0.1);
       last = now;
       const moving = stepCinema(dt, reducedMotion);
       paint();
-      if (moving) {
-        raf = requestAnimationFrame(loop);
-      } else {
-        idle = true;
-      }
+      if (moving) scheduleNext();
+      else idle = true;
     };
-    const kickWhileMoving = () => {
-      if (idle) {
-        idle = false;
-        raf = requestAnimationFrame(loop);
+
+    /** Paint every layer from the current depth — the dolly itself. */
+    const paint = () => {
+      const g = cinema.y;
+      const view = vh();
+
+      for (let i = 0; i < cinema.layers.length; i++) {
+        const L = cinema.layers[i];
+        const dwellEnd = L.b + L.dwell;
+
+        // Approach band (before the layer's 1:1 spot).
+        const a = clamp((g - (L.b - TRANSITION)) / TRANSITION, 0, 1);
+        // Depart band (after its dwell).
+        const d = clamp((g - dwellEnd) / TRANSITION, 0, 1);
+        // Internal pan while centred (taller-than-viewport content).
+        const pan = L.dwell > 0 ? clamp((g - L.b) / L.dwell, 0, 1) : 0;
+
+        const far = a === 0 || d === 1;
+
+        // Visibility / interactivity / a11y for far layers.
+        if (far) {
+          if (L.el.dataset.cinemaNear === "1") {
+            L.el.style.visibility = "hidden";
+            L.el.style.pointerEvents = "none";
+            L.el.setAttribute("aria-hidden", "true");
+            (L.el as HTMLElement & { inert?: boolean }).inert = true;
+            L.el.dataset.cinemaNear = "0";
+          }
+          continue;
+        }
+        if (L.el.dataset.cinemaNear !== "1") {
+          L.el.style.visibility = "visible";
+          L.el.style.pointerEvents = "auto";
+          L.el.removeAttribute("aria-hidden");
+          (L.el as HTMLElement & { inert?: boolean }).inert = false;
+          L.el.dataset.cinemaNear = "1";
+        }
+        L.el.style.zIndex = String(i);
+
+        // Scale: approach grows the scene toward you; depart multiplies it
+        // past the screen edges as you plunge through.
+        let scale = 0.3 + 0.7 * easeOutCubic(a);
+        scale *= 1 + 2.6 * easeInCubic(d);
+        // Opacity: fade in while approaching, fade out while departing.
+        const inO = clamp((a - 0.25) / 0.75, 0, 1);
+        const outO = Math.pow(1 - d, 1.25);
+        const opacity = clamp(inO * outO, 0, 1);
+
+        const ty = -Math.round(pan * L.panPx);
+        L.el.style.transform = `translate3d(0, ${ty}px, 0) scale(${scale.toFixed(4)})`;
+        L.el.style.opacity = opacity.toFixed(3);
+      }
+
+      // Mirror into the shared scrollState the WebGL camera reads per frame.
+      scrollState.y = g * view;
+      scrollState.velocity = cinema.velocity * view;
+      scrollState.limit = cinema.limit * view;
+      scrollState.progress = cinema.progress;
+
+      if (cinema.activeId !== lastActive) {
+        lastActive = cinema.activeId;
+        setActiveId(cinema.activeId);
       }
     };
 
-    const unsubscribe = subscribeCinema(kickWhileMoving);
+    const kick = () => {
+      if (idle) {
+        idle = false;
+        last = performance.now();
+        scheduleNext();
+      }
+    };
+
+    const unsubscribe = subscribeCinema(kick);
     const detachPointer = attachPointer();
-    // Initial paint (a hash jump may have landed instantly on load).
-    kickWhileMoving();
+    paint(); // initial paint (a hash jump may have landed instantly)
+    kick();
 
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(timer);
       unsubscribe();
       detachPointer();
       ro.disconnect();
@@ -235,10 +301,10 @@ export function CinemaScroll({ children }: { children?: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="cinema-stage">
-      <div ref={trackRef} className="cinema-track">
+    <CinemaActiveContext.Provider value={activeId}>
+      <div ref={stageRef} className="cinema-stage">
         {children}
       </div>
-    </div>
+    </CinemaActiveContext.Provider>
   );
 }
