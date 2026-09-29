@@ -1,25 +1,18 @@
 /**
- * Module-singleton runtime state shared between the smooth-scroll layer and the
- * WebGL scene. Kept OUTSIDE React so the 3D render loop (useFrame) can read it
- * every frame without triggering re-renders.
+ * Module-singleton runtime state shared between the cinema-scroll layer and
+ * the WebGL scene. Kept OUTSIDE React so the 3D render loop (useFrame) can
+ * read it every frame without triggering re-renders.
  *
- * - scrollState: total page progress (0..1), raw scrollY, velocity.
+ * - scrollState: total page progress (0..1), virtual scrollY, velocity.
+ *   Fed by the cinema-scroll controller (virtual document scroll).
  * - pointerState: normalized (-1..1) + pixel pointer position.
  */
-
-import type Lenis from "lenis";
-
-/**
- * Holds the active Lenis instance so non-React callers (the `scrollToSection`
- * util used by nav links / CTAs) can drive smooth, eased scrolling.
- */
-export const lenisInstance: { current: Lenis | null } = { current: null };
 
 export const scrollState = {
   progress: 0,
   y: 0,
   velocity: 0,
-  /** document height minus viewport, for normalisation */
+  /** track height minus viewport, for normalisation */
   limit: 0,
 };
 

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import { SmoothScroll } from "@/components/layout/smooth-scroll";
+import { CinemaScroll } from "@/components/layout/cinema-scroll";
 import { BackgroundFx } from "@/components/layout/background-fx";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import Navbar from "@/components/layout/navbar";
@@ -38,14 +38,15 @@ export default function HomePage() {
   const palette = useCommandPalette();
 
   return (
-    <SmoothScroll>
+    <>
       {/* Fixed cinematic WebGL background (z-0, lazy, client-only).
           Degrades to the CSS gradient if WebGL is unavailable. */}
       <CanvasErrorBoundary>
         <ImmersiveCanvas />
       </CanvasErrorBoundary>
 
-      {/* Overlays + progress + cursor: above the canvas, below/around content */}
+      {/* Overlays + progress + cursor: above the canvas, outside the track —
+          the track's transform would otherwise trap fixed children. */}
       <BackgroundFx />
       <ScrollProgress />
       <CustomCursor />
@@ -53,25 +54,28 @@ export default function HomePage() {
       {/* App shell */}
       <Navbar onOpenCommandPalette={() => palette.setOpen(true)} />
 
-      <main id="main" tabIndex={-1} className="relative z-10 focus:outline-none">
-        <HeroSection />
-        <AboutSection />
-        <SkillsSection />
-        <ProjectsSection />
-        <RepositoriesSection />
-        <AiLabSection />
-        <DataSection />
-        <ExperienceSection />
-        <TimelineSection />
-        <ContactSection />
-      </main>
+      {/* Virtual-scroll stage: ONLY flowing content lives in the track. */}
+      <CinemaScroll>
+        <main id="main" tabIndex={-1} className="relative z-10 focus:outline-none">
+          <HeroSection />
+          <AboutSection />
+          <SkillsSection />
+          <ProjectsSection />
+          <RepositoriesSection />
+          <AiLabSection />
+          <DataSection />
+          <ExperienceSection />
+          <TimelineSection />
+          <ContactSection />
+        </main>
 
-      <Footer />
+        <Footer />
+      </CinemaScroll>
 
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
 
       {/* Ali Abdelhady AI assistant — floating launcher (⌘J), lazy panel */}
       <ChatWidget />
-    </SmoothScroll>
+    </>
   );
 }

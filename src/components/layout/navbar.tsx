@@ -7,6 +7,7 @@ import { Github } from "@/components/ui/brand-icons";
 
 import { cn } from "@/lib/utils";
 import { scrollToSection } from "@/lib/scroll";
+import { cinema, subscribeCinema } from "@/lib/cinema-scroll";
 import { NAV_ITEMS, SITE } from "@/lib/constants";
 import { SOCIAL_LINKS } from "@/data/social-links";
 import { Button } from "@/components/ui/button";
@@ -37,12 +38,12 @@ export default function Navbar({
   const [active, setActive] = React.useState<string>(NAV_ITEMS[0]?.id ?? "hero");
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  // Track scroll position to toggle the blurred bar.
+  // Track virtual scroll position to toggle the blurred bar (no native
+  // scroll events exist in cinema mode — subscribe to the engine instead).
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const update = () => setScrolled(cinema.y > 24);
+    update();
+    return subscribeCinema(update);
   }, []);
 
   // Scroll-spy: highlight the active section via IntersectionObserver.

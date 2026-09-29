@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { motion, useReducedMotion, useMotionValue, useTransform } from "motion/react";
 
 import { cn } from "@/lib/utils";
+import { cinema, subscribeCinema, clamp } from "@/lib/cinema-scroll";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +13,9 @@ import { TIMELINE, type TimelineItem } from "@/data/timeline";
 
 /**
  * The center rail draws itself downward as the timeline scrolls into view.
- * We track the section's scroll progress and map it to a scaleY on the line's
- * "fill" gradient. Reduced-motion users get a fully drawn, static line.
+ * We track the section's progress through the virtual viewport and map it to
+ * a scaleY on the line's "fill" gradient. Reduced-motion users get a fully
+ * drawn, static line.
  */
 function ProgressiveRail({
   containerRef,
@@ -21,12 +23,26 @@ function ProgressiveRail({
   containerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    // Bias the drawing so the line fills as the rail passes through the viewport.
-    offset: ["start 85%", "end 60%"],
-  });
-  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const progress = useMotionValue(0);
+  const scaleY = useTransform(progress, [0, 1], [0, 1]);
+
+  // Cinema equivalent of motion's useScroll({ offset: ["start 85%", "end 60%"] }):
+  // 0 when the section top reaches 85% of the viewport, 1 when its bottom
+  // reaches 60%. Recomputed from live geometry on every damped frame.
+  React.useEffect(() => {
+    const update = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vh = window.visualViewport?.height ?? window.innerHeight;
+      const top = rect.top + cinema.y;
+      const start = top - vh * 0.85;
+      const end = top + rect.height - vh * 0.6;
+      progress.set(end > start ? clamp((cinema.y - start) / (end - start), 0, 1) : 1);
+    };
+    update();
+    return subscribeCinema(update);
+  }, [containerRef, progress]);
 
   return (
     <div

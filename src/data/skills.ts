@@ -109,6 +109,23 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
       { name: "RViz2", level: 72 },
     ],
   },
+  {
+    id: "devops",
+    title: "DevOps & Infrastructure",
+    accent: "primary",
+    description:
+      "Serving and maintaining real production systems — from VPS provisioning to CI/CD pipelines.",
+    skills: [
+      { name: "VPS (Contabo · DigitalOcean)", level: 84 },
+      { name: "CI/CD (GitHub Actions)", level: 85 },
+      { name: "Vercel", level: 86 },
+      { name: "Cloudflare", level: 80 },
+      { name: "Nginx / Reverse Proxy", level: 74 },
+      { name: "Server Maintenance & Backups", level: 80 },
+      { name: "Load Testing", level: 72 },
+      { name: "Self-Hosted Supabase", level: 75 },
+    ],
+  },
 ];
 
 /** Flat list of all skill names — used by the orbit / tag clouds. */

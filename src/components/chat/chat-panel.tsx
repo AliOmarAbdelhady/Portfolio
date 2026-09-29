@@ -292,7 +292,7 @@ export default function ChatPanel({
           {/* messages */}
           {messages.length === 0 ? (
             <div
-              data-lenis-prevent
+              data-lenis-prevent data-cinema-prevent
               className="relative flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto overscroll-contain px-6 py-4 text-center"
             >
               <div className="relative mt-auto">
@@ -337,7 +337,7 @@ export default function ChatPanel({
             <div
               ref={scrollRef}
               aria-live="polite"
-              data-lenis-prevent
+              data-lenis-prevent data-cinema-prevent
               className="relative min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-4"
             >
               {messages.map((m, i) =>

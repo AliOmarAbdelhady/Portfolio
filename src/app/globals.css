@@ -548,6 +548,37 @@ h1, h2, h3, h4 {
   }
 }
 
+/* =========================================================================
+   CINEMA SCROLL — virtual document scroll (no scrollbar)
+   The stage is a fixed viewport; the track translates by −y inside it.
+   ========================================================================= */
+html.cinema-mode,
+html.cinema-mode body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.cinema-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  /* Layers the per-section zoom behind fixed overlays without stacking issues. */
+  transform-style: preserve-3d;
+}
+
+.cinema-track {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Sections zoom gently as they travel through the stage (JS drives the
+   values; this just smooths micro-jitter and resets cleanly). */
+.cinema-track > main > section {
+  transform-origin: 50% 50%;
+}
+
 /* Respect reduced motion everywhere. */
 @media (prefers-reduced-motion: reduce) {
   *,
