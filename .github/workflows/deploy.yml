@@ -1,0 +1,81 @@
+# Continuous Deployment — ships to Vercel from CI.
+#
+# Uses the official Vercel "build in CI" flow: pull project settings → build
+# locally with the Vercel adapter → upload a prebuilt deployment. The
+# production alias lands on https://ali-omar-abdelhady.vercel.app.
+#
+# Requires three repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    name: Vercel (${{ github.event_name == 'push' && 'production' || 'preview' }})
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pull Vercel project settings
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            npx vercel@latest pull --yes --environment=production
+          else
+            npx vercel@latest pull --yes --environment=preview
+          fi
+
+      - name: Build
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            npx vercel@latest build --prod
+          else
+            npx vercel@latest build
+          fi
+
+      - name: Deploy
+        id: deploy
+        run: |
+          set -e
+          ARGS="--prebuilt"
+          [ "${{ github.event_name }}" = "push" ] && ARGS="--prebuilt --prod"
+          LOG=$(npx vercel@latest deploy $ARGS 2>&1) || { echo "$LOG"; exit 1; }
+          echo "$LOG"
+          URL=$(echo "$LOG" | grep -Eo 'https://[a-zA-Z0-9-]+\.vercel\.app' | head -1)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed to: $URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment preview URL on PR
+        if: github.event_name == 'pull_request'
+        continue-on-error: true # Dependabot PRs use a read-only token
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: gh pr comment "$NUMBER" --repo "$GITHUB_REPOSITORY" --body "🔮 Preview deployed: $URL"

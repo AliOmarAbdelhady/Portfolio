@@ -1,38 +1,52 @@
 # CI/CD & Deployment
 
-The site deploys to **Vercel** via its native Git integration — no deploy
-scripts or cloud tokens live in the repo.
+Deploys go to **Vercel** (project `portfolio`, team `aliomarsaleh2005-2791's
+projects`) and are driven entirely by **GitHub Actions** — no deploy happens
+from a laptop, and no Vercel credentials live in the repo (three GitHub
+Actions secrets carry them).
 
 ## Pipeline at a glance
 
 ```
-push to main ──► CI (lint · typecheck · build) ──► Vercel production deploy
-                                                    └─► https://ali-omar-abdelhady.vercel.app
-pull request ──► CI (lint · typecheck · build) ──► Vercel preview deploy (per PR)
+push to main ──► CI (lint · typecheck · build) ─┐
+                                                ├─► Deploy: build on Actions
+pull request ──► CI (lint · typecheck · build) ─┘   ├─ main → Vercel PRODUCTION
+                                                    └─ PR   → Vercel PREVIEW + URL comment
 weekly       ──► Dependabot (npm + GitHub Actions bumps)
 ```
 
-## Continuous Integration — GitHub Actions
+- **Production:** <https://ali-omar-abdelhady.vercel.app>
+- **Preview:** every PR gets an isolated URL, posted as a PR comment.
 
-`.github/workflows/ci.yml` runs on every push to `main` and every PR:
+## Workflows
 
-1. `npm ci` (Node 24 — matches the Vercel runtime)
-2. `npm run lint`
-3. `npm run typecheck`
-4. `npm run build` (a production Next.js build must succeed)
+| File                       | What it does                                                            |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `.github/workflows/ci.yml` | `npm ci` → lint → typecheck → production `next build` on every push/PR. |
+| `.github/workflows/deploy.yml` | Pulls Vercel settings, builds with the Vercel adapter, uploads a prebuilt deployment (`--prod` for `main`, preview otherwise), comments the preview URL on PRs. |
+| `.github/dependabot.yml`   | Weekly npm + GitHub Actions updates (minor/patch grouped).              |
 
-Concurrent runs on the same branch are cancelled automatically.
+CI runs on Node 24 to match the Vercel project runtime. Concurrent runs on
+the same ref are cancelled automatically.
 
-## Continuous Deployment — Vercel Git integration
+## Required secrets
 
-- **`main`** → production at <https://ali-omar-abdelhady.vercel.app>
-- **Any PR** → an isolated preview URL, posted on the PR by Vercel
-- Environment variables are configured in the Vercel project settings
-  (`NEXT_PUBLIC_SITE_URL`, …) — never committed here.
+Set in **Settings → Secrets and variables → Actions**:
 
-## Recommended: require CI before merge
+| Secret              | Where to find it                                                       |
+| ------------------- | ---------------------------------------------------------------------- |
+| `VERCEL_TOKEN`      | vercel.com → Account Settings → Tokens                                 |
+| `VERCEL_ORG_ID`     | Vercel project → Settings → General → "Vercel Organization ID"         |
+| `VERCEL_PROJECT_ID` | Vercel project → Settings → General → "Vercel Project ID"              |
 
-To make the checks blocking, add a branch protection rule (Settings →
-Branches → Add rule) for `main` that requires the `Lint · Typecheck · Build`
-check — plus Vercel's own `vercel/portfolio` check if you want deploys gated
-too.
+## Notes
+
+- Vercel's native **Git integration is currently disconnected** for this
+  project (push-triggered deployments come out `BLOCKED`). Deployments are
+  handled by `deploy.yml` instead. If you reconnect GitHub in the Vercel
+  dashboard (Settings → Git Integration), **remove `deploy.yml`** so pushes
+  don't deploy twice.
+- Environment variables (`NEXT_PUBLIC_SITE_URL`, …) are configured in the
+  Vercel project settings and pulled in at build time — never committed here.
+- Optional hardening: add a branch protection rule for `main` requiring the
+  `Lint · Typecheck · Build` and `Vercel` checks before merge.
