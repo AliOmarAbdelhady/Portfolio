@@ -1,6 +1,6 @@
 /**
- * Professional experience — internships and active roles, sourced verbatim
- * from the CV. Rendered by the Experience section ("Command Log", station 07).
+ * Professional experience — internships and active roles, sourced from the CV
+ * and current work. Rendered by the Experience section ("Command Log", station 07).
  */
 export type ExperienceType = "internship" | "role";
 
@@ -24,18 +24,67 @@ export const EXPERIENCE: ExperienceItem[] = [
     id: "klenka",
     role: "Software Development Intern",
     org: "Klenka",
-    period: "Winter 2026 · Jan – Feb",
+    period: "Jan 2026 — Present",
     location: "New Cairo, Egypt",
     summary:
-      "Shipped a Saved Search feature on a multitenant CRM platform used across candidate, client, and vacancy workflows.",
+      "Ongoing internship on a multitenant CRM platform — from core search features to the Altanfeethi frontend and the Layla voice-AI mobile app.",
     highlights: [
       "Developed a Saved Search feature for a multitenant CRM platform, enabling users to create, save, and reuse complex search queries across candidate, client, and vacancy grids.",
-      "Worked with PostgreSQL full-text search, JSON filter rules, and REST API endpoints to support flexible, dynamic query handling.",
-      "Built with React, Node.js, and PostgreSQL; collaborated within a team using agile practices.",
+      "Building the Altanfeethi frontend — an Nx monorepo shipping a member web app, an admin console, and an Expo mobile app over shared libraries, deployed to let-script.com.",
+      "Developing Layla, an Expo voice-AI mobile app with EAS over-the-air updates for Android and iOS, plus SIP↔Gemini Live, FreeSWITCH, and Twilio telephony-AI bridges.",
+      "Working with PostgreSQL full-text search, JSON filter rules, REST APIs, React, and Node.js within an agile team.",
     ],
-    tags: ["React", "Node.js", "PostgreSQL", "REST APIs"],
+    tags: ["React", "Node.js", "PostgreSQL", "Nx", "Expo", "VoIP/AI"],
     type: "internship",
     accent: "primary",
+  },
+  {
+    id: "roben",
+    role: "Head of Software & AI",
+    org: "RobEn Club — AASTMT",
+    period: "Ongoing",
+    location: "Cairo, Egypt",
+    summary:
+      "Leading the club's software and AI division — the DARN platform on roben.club, the Learning Hub, and competition robotics.",
+    highlights: [
+      "Lead DARN (Damn Awesome RobEn Network), the club's platform at roben.club: HR system (members, meetings, warnings, ratings), the yearly recruitment cycle, and the public website — deployed on the club's own VPS with a self-hosted Supabase backend.",
+      "Lead the RobEn Learning Hub (supabase.roben.club backend + Vercel frontend) for member education.",
+      "Head software & AI for the club's MATE ROV competition vehicles (2nd place regionally in 2025 and 2026).",
+    ],
+    tags: ["Leadership", "Full-Stack", "DevOps", "Robotics", "AI"],
+    type: "role",
+    accent: "tertiary",
+  },
+  {
+    id: "pulse",
+    role: "Data Engineering Intern",
+    org: "Pulse by Solutions",
+    period: "August 2026 · 1 month",
+    location: "Egypt",
+    summary:
+      "One-month intensive internship covering the data tower and data engineering end to end.",
+    highlights: [
+      "Completed a focused data-engineering internship: data tower concepts, pipeline design, data transformation, and engineering workflows used in modern data platforms.",
+    ],
+    tags: ["Data Engineering", "Data Tower", "Pipelines"],
+    type: "internship",
+    accent: "warning",
+  },
+  {
+    id: "raya",
+    role: "AI & RPA Intern",
+    org: "Raya Information Technology",
+    period: "July 2026",
+    location: "Cairo, Egypt",
+    summary:
+      "RPA and automation internship — designing UiPath REFramework automations and AI-assisted process automation.",
+    highlights: [
+      "Built UiPath REFramework solutions, including an automation verifying account positions between web (System 1) and desktop (System 3) applications.",
+      "Delivered coursework automations: employee registration workflows, Excel consolidation, exception handling, Integration Service, and invoice processing.",
+    ],
+    tags: ["UiPath", "RPA", "Automation", "AI"],
+    type: "internship",
+    accent: "secondary",
   },
   {
     id: "cib",
@@ -52,20 +101,5 @@ export const EXPERIENCE: ExperienceItem[] = [
     tags: ["Sustainable Finance", "Banking", "Sustainability"],
     type: "internship",
     accent: "success",
-  },
-  {
-    id: "roben",
-    role: "Software Team Member",
-    org: "RobEn Software & AI",
-    period: "Ongoing",
-    location: "Cairo, Egypt",
-    summary:
-      "Core team member contributing to software and AI development across multiple active robotics projects.",
-    highlights: [
-      "Contributing to software and AI development initiatives as a core team member across multiple active projects.",
-    ],
-    tags: ["Software Engineering", "AI", "Robotics", "Teamwork"],
-    type: "role",
-    accent: "tertiary",
   },
 ];
