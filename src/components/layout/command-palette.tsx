@@ -12,8 +12,9 @@ import {
   Copy,
   Check,
   Compass,
+  FileText,
 } from "lucide-react";
-import { Github } from "@/components/ui/brand-icons";
+import { Github, Linkedin } from "@/components/ui/brand-icons";
 import { scrollToSection } from "@/lib/scroll";
 
 import { cn } from "@/lib/utils";
@@ -224,6 +225,30 @@ export default function CommandPalette({
                 </CommandIcon>
                 Open ORCID
               </Command.Item>
+
+              <Command.Item
+                value="linkedin open profile"
+                onSelect={() => openExternal(SITE.linkedinUrl)}
+                className="group flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 font-mono text-sm text-foreground/90 data-[selected=true]:bg-primary/10 data-[selected=true]:text-primary"
+              >
+                <CommandIcon>
+                  <Linkedin className="h-4 w-4" />
+                </CommandIcon>
+                Open LinkedIn
+              </Command.Item>
+
+              {SITE.resumeUrl ? (
+                <Command.Item
+                  value="resume cv download view pdf"
+                  onSelect={() => openExternal(SITE.resumeUrl)}
+                  className="group flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 font-mono text-sm text-foreground/90 data-[selected=true]:bg-primary/10 data-[selected=true]:text-primary"
+                >
+                  <CommandIcon>
+                    <FileText className="h-4 w-4" />
+                  </CommandIcon>
+                  View Résumé
+                </Command.Item>
+              ) : null}
 
               <Command.Item
                 value="copy email address clipboard contact"

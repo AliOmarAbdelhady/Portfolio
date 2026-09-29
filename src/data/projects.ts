@@ -10,6 +10,7 @@ export type ProjectCategory =
   | "Web"
   | "AI"
   | "Computer Vision"
+  | "Robotics"
   | "Data Science"
   | "Research"
   | "Biomedical";
@@ -65,27 +66,27 @@ export const PROJECTS: Project[] = [
     showcase: true,
   },
   {
-    id: "vision-detection",
-    slug: "vision-detection",
-    title: "Computer Vision Detection System",
-    subtitle: "Real-time object detection pipeline",
+    id: "workplace-safety",
+    slug: "workplace-safety",
+    title: "Workplace Safety Detection System",
+    subtitle: "Real-time PPE compliance with multi-model YOLO",
     category: "Computer Vision",
     description:
-      "A detection pipeline for identifying objects in images using modern deep learning models, preprocessing workflows, and evaluation metrics.",
+      "Real-time PPE compliance system running four specialized YOLO models to detect safety gear and flag violations on live video.",
     longDescription:
-      "An end-to-end vision pipeline: ingestion, augmentation, model inference (YOLO-based), post-processing, and rich evaluation with mAP / precision-recall.",
+      "A production-leaning workplace-safety platform that runs four specialized YOLO models (YOLOv8m & YOLO11m) in parallel to detect safety vests, helmets, gloves, and seven classes of fire extinguishers. It supports real-time webcam capture, image upload, and batch folder processing, and automatically tracks PPE compliance — flagging missing helmets or gloves and exporting CSV summary reports.",
     problem:
-      "Building reproducible vision pipelines usually means gluing brittle scripts with inconsistent evaluation.",
+      "Safety teams need instant, automatic verification that workers are wearing the right protective equipment; manual review of footage doesn't scale.",
     solution:
-      "A modular pipeline with a single config-driven entrypoint, reusable preprocessing blocks, and standardized metrics reporting.",
+      "A multi-model detection pipeline with configurable confidence/IOU thresholds, CUDA-accelerated inference, and an interactive Streamlit UI that surfaces violations and compliance percentages in real time.",
     features: [
-      "YOLO-based real-time detection",
-      "Config-driven preprocessing & augmentation",
-      "mAP / precision-recall evaluation",
-      "Streamlit demo interface",
-      "Batch + single-image inference",
+      "4 specialized YOLO models (YOLOv8m & YOLO11m)",
+      "Real-time webcam, image & batch folder input",
+      "Automated PPE compliance tracking + CSV export",
+      "Configurable confidence & IOU thresholds",
+      "CUDA GPU acceleration for multi-model inference",
     ],
-    technologies: ["Python", "OpenCV", "YOLO", "PyTorch", "Streamlit", "NumPy"],
+    technologies: ["Python", "YOLOv8", "YOLO11", "PyTorch", "OpenCV", "Streamlit", "CUDA", "Ultralytics"],
     githubUrl: "https://github.com/AliOmarAbdelhady",
     accent: "tertiary",
     featured: true,
@@ -93,118 +94,96 @@ export const PROJECTS: Project[] = [
     showcase: true,
   },
   {
-    id: "biomedical-dss",
-    slug: "biomedical-dss",
-    title: "Biomedical Decision Support System",
-    subtitle: "Clinical prediction assistant",
-    category: "Biomedical",
+    id: "kraken-auv",
+    slug: "kraken-auv",
+    title: "Kraken — Autonomous Underwater Vehicle",
+    subtitle: "ROS2 autonomy stack for the BlueROV2",
+    category: "Robotics",
     description:
-      "A decision-support prototype that surfaces likely conditions from structured patient data, with explainable, confidence-scored outputs.",
+      "A ROS2 Humble autonomous control framework for the BlueROV2 with visual SLAM, 3D path planning, and sensor fusion.",
     longDescription:
-      "A research-oriented system combining feature engineering, calibrated classifiers, and SHAP-style explanations to support — not replace — clinical judgment.",
+      "An autonomous underwater vehicle stack built on ROS2 Humble for the BlueROV2. It combines visual SLAM localization, 3D path planning, and multi-sensor fusion to execute fully autonomous underwater missions, simulated in Gazebo Harmonic with realistic buoyancy, hydrodynamic drag, and ArduSub SITL.",
     problem:
-      "Clinicians need fast, explainable second opinions, not opaque black boxes.",
+      "Autonomous underwater navigation demands robust localization and control in a GPS-denied, physics-harsh environment.",
     solution:
-      "A calibrated, interpretable model with per-prediction feature attribution and a clean review interface.",
+      "A ROS2/Nav2 framework using ORB-SLAM2 stereo localization, custom Nav2 plugins and Behavior Trees for mission execution, and fused IMU + visual odometry + depth data for 6-DOF holonomic control via MAVROS/MAVLink.",
     features: [
-      "Calibrated probabilistic outputs",
-      "Per-prediction feature attribution",
-      "Structured-data preprocessing pipeline",
-      "Review-friendly interface",
-      "Audit-ready prediction logs",
+      "ROS2 Humble control framework for BlueROV2",
+      "Visual SLAM via ORB-SLAM2 + stereo cameras",
+      "Custom Nav2 plugins & Behavior Trees",
+      "6-DOF holonomic control via MAVROS/MAVLink",
+      "Gazebo Harmonic sim with buoyancy & hydrodynamic drag",
     ],
-    technologies: ["Python", "Scikit-learn", "Pandas", "SHAP", "FastAPI"],
+    technologies: ["ROS2", "C++", "Python", "Nav2", "ORB-SLAM2", "Gazebo", "MAVROS", "Docker"],
+    githubUrl: "https://github.com/AliOmarAbdelhady",
+    accent: "secondary",
+    featured: true,
+    year: "2025",
+    showcase: true,
+  },
+  {
+    id: "sard",
+    slug: "sard",
+    title: "SARD — Search & Rescue Detection",
+    subtitle: "UAV human detection with GPS geolocation",
+    category: "AI",
+    description:
+      "A UAV search-and-rescue system that detects people in aerial imagery and maps their real-world GPS coordinates.",
+    longDescription:
+      "A search-and-rescue AI system for aerial UAV imagery. A fine-tuned YOLOv8m model detects people in small-object aerial scenes (>90% mAP@0.5 where most targets occupy <1% of the frame), while an EXIF/GPS pipeline converts detections to real-world latitude/longitude and 3D Gaussian Splatting reconstructs orthographic maps with georeferenced bounding boxes for rapid search-area visualization.",
+    problem:
+      "In search-and-rescue, spotting a person in vast aerial footage and knowing exactly where they are is the difference between rescue and loss.",
+    solution:
+      "An end-to-end pipeline: small-object detection on 5,755 augmented UAV images, EXIF-based GPS geolocation of each detection, 3D Gaussian Splatting map reconstruction, and a real-time Gradio interface with CUDA-accelerated batch inference.",
+    features: [
+      "YOLOv8m fine-tuned on 5,755 UAV images (>90% mAP@0.5)",
+      "GPS/EXIF pipeline → real-world lat/long of detections",
+      "3D Gaussian Splatting orthographic map reconstruction",
+      "Georeferenced bounding-box overlays",
+      "Gradio UI with CUDA-accelerated batch inference",
+    ],
+    technologies: ["Python", "YOLOv8", "PyTorch", "OpenCV", "Gradio", "3D Gaussian Splatting", "CUDA"],
+    githubUrl: "https://github.com/AliOmarAbdelhady",
     accent: "danger",
     featured: true,
-    year: "2024",
-    showcase: true,
-  },
-  {
-    id: "data-dashboard",
-    slug: "data-dashboard",
-    title: "Data Science Insight Dashboard",
-    subtitle: "Interactive analytics surface",
-    category: "Data Science",
-    description:
-      "A dashboard that turns messy datasets into interactive, explorable insights with drill-downs and automated summaries.",
-    longDescription:
-      "Covers the full loop: cleaning, feature engineering, statistical profiling, and interactive visualization. Designed so non-technical stakeholders can self-serve answers.",
-    problem:
-      "Static reports go stale and hide the interesting questions.",
-    solution:
-      "A live, filterable dashboard with automated profiling and explainable charts.",
-    features: [
-      "Automated data profiling",
-      "Interactive filtering & drill-down",
-      "Statistical summaries",
-      "Exportable insights",
-    ],
-    technologies: ["Python", "Pandas", "Plotly", "SQL", "Power BI"],
-    accent: "success",
-    featured: true,
-    year: "2024",
-    showcase: true,
-  },
-  {
-    id: "ml-tracker",
-    slug: "ml-tracker",
-    title: "ML Experiment Tracker",
-    subtitle: "Reproducible model training logs",
-    category: "AI",
-    description:
-      "A lightweight experiment-tracking tool that records parameters, metrics, and artifacts for every training run.",
-    longDescription:
-      "Captures hyperparameters, environment, and metrics per run so experiments are reproducible and comparable across a team.",
-    problem:
-      "Spreadsheets and memory are a terrible way to track ML experiments.",
-    solution:
-      "An append-only run registry with diffing and comparison views.",
-    features: [
-      "Parameter + metric logging",
-      "Run comparison & diffing",
-      "Artifact storage",
-      "Reproducible environment snapshots",
-    ],
-    technologies: ["Python", "FastAPI", "SQLite", "React", "TypeScript"],
-    accent: "secondary",
-    featured: false,
-    year: "2024",
-    showcase: true,
-  },
-  {
-    id: "rag-assistant",
-    slug: "rag-assistant",
-    title: "RAG Knowledge Assistant",
-    subtitle: "Retrieval-augmented Q&A",
-    category: "AI",
-    description:
-      "A retrieval-augmented assistant that grounds answers in your own documents with citations.",
-    longDescription:
-      "Chunks, embeds, and indexes a document corpus, then retrieves and re-ranks passages to ground LLM answers with source citations.",
-    problem:
-      "LLMs hallucinate when asked about private or recent knowledge.",
-    solution:
-      "A grounded RAG pipeline with cited, retrievable evidence for every answer.",
-    features: [
-      "Document chunking + embedding index",
-      "Hybrid retrieval & re-ranking",
-      "Cited, source-grounded answers",
-      "Streaming responses",
-    ],
-    technologies: ["Python", "LangChain", "Vector DB", "LLMs", "FastAPI"],
-    accent: "secondary",
-    featured: false,
     year: "2025",
+    showcase: true,
+  },
+  {
+    id: "noaa-fish-tracking",
+    slug: "noaa-fish-tracking",
+    title: "NOAA — Real-Time Fish Tracking",
+    subtitle: "Underwater multi-species tracking",
+    category: "Computer Vision",
+    description:
+      "A real-time fish-tracking system built for the NOAA competition using a custom YOLOv8 model on underwater video.",
+    longDescription:
+      "An AI-based real-time fish tracking system developed for the NOAA competition. A custom YOLOv8 model — trained on a collected and annotated marine dataset — is integrated with OpenCV for efficient, real-time underwater tracking of multiple fish species under varying conditions.",
+    problem:
+      "Counting and tracking fish species in underwater video by hand is slow and inconsistent across conditions.",
+    solution:
+      "A custom-trained YOLOv8 model paired with an OpenCV tracking pipeline that detects and follows multiple fish species in real time under varying underwater conditions.",
+    features: [
+      "Custom YOLOv8 model on a collected marine dataset",
+      "Real-time underwater tracking via OpenCV",
+      "Multi-species detection under varying conditions",
+      "Manual dataset collection & annotation",
+    ],
+    technologies: ["Python", "YOLOv8", "OpenCV", "PyTorch"],
+    githubUrl: "https://github.com/AliOmarAbdelhady",
+    accent: "success",
+    featured: false,
+    year: "2024",
     showcase: true,
   },
 ];
 
 export const FEATURED_PROJECTS = PROJECTS.filter((p) => p.featured);
-export const PROJECT_CATEGORIES: ProjectCategory[] = [
-  "Web",
-  "AI",
-  "Computer Vision",
-  "Data Science",
-  "Research",
-  "Biomedical",
-];
+
+/**
+ * Filter taxonomy for the Build Archive. Derived from the categories that
+ * actually appear in PROJECTS so no empty filter chips are shown.
+ */
+export const PROJECT_CATEGORIES: ProjectCategory[] = Array.from(
+  new Set(PROJECTS.map((p) => p.category)),
+);

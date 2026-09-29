@@ -267,7 +267,8 @@ export default function Navbar({
                         <a
                           href={link.href}
                           target={
-                            link.href.startsWith("mailto:")
+                            link.href.startsWith("mailto:") ||
+                            link.href.startsWith("tel:")
                               ? undefined
                               : "_blank"
                           }

@@ -62,7 +62,7 @@ export default function SkillsSection() {
           index="02"
           station="Orbit Station"
           title="Skill Constellation"
-          subtitle="A breakdown of the technologies, frameworks, and disciplines I work with across web, AI, vision, and data."
+          subtitle="A breakdown of the technologies, frameworks, and disciplines I work with across languages, AI, robotics, web, and data."
         />
 
         <div className="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">

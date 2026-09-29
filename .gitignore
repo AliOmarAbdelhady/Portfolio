@@ -25,6 +25,8 @@ PROJECT_PLAN.md
 .DS_Store
 *.pem
 
+public/resume.pdf
+
 # debug
 npm-debug.log*
 yarn-debug.log*

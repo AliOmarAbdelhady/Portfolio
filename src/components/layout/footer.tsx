@@ -1,8 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { ArrowUp, Mail } from "lucide-react";
-import { Github, Linkedin } from "@/components/ui/brand-icons";
+import { ArrowUp, Mail, Phone } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  Orcid,
+  Facebook,
+  Instagram,
+} from "@/components/ui/brand-icons";
 import { scrollToSection } from "@/lib/scroll";
 
 import { NAV_ITEMS, SITE } from "@/lib/constants";
@@ -20,9 +26,10 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
   github: <Github className="h-4 w-4" />,
   linkedin: <Linkedin className="h-4 w-4" />,
   mail: <Mail className="h-4 w-4" />,
-  orcid: (
-    <span className="font-mono text-[10px] font-bold leading-none">iD</span>
-  ),
+  phone: <Phone className="h-4 w-4" />,
+  facebook: <Facebook className="h-4 w-4" />,
+  instagram: <Instagram className="h-4 w-4" />,
+  orcid: <Orcid className="h-4 w-4" />,
 };
 
 function scrollToTop() {
@@ -61,7 +68,10 @@ export default function Footer() {
               {/* Social links */}
               <div className="flex items-center gap-2 pt-2">
                 {SOCIAL_LINKS.map((link) => {
-                  const isMail = link.href.startsWith("mailto:");
+                  // mailto: and tel: open in the same tab.
+                  const isExternal =
+                    !link.href.startsWith("mailto:") &&
+                    !link.href.startsWith("tel:");
                   return (
                     <Tooltip key={link.id}>
                       <TooltipTrigger asChild>
@@ -74,7 +84,7 @@ export default function Footer() {
                         >
                           <a
                             href={link.href}
-                            target={isMail ? undefined : "_blank"}
+                            target={isExternal ? "_blank" : undefined}
                             rel="noopener noreferrer"
                           >
                             {SOCIAL_ICONS[link.icon]}
@@ -117,7 +127,12 @@ export default function Footer() {
                   <li key={link.id}>
                     <a
                       href={link.href}
-                      target={link.href.startsWith("mailto:") ? undefined : "_blank"}
+                      target={
+                        link.href.startsWith("mailto:") ||
+                        link.href.startsWith("tel:")
+                          ? undefined
+                          : "_blank"
+                      }
                       rel="noopener noreferrer"
                       className="text-sm text-muted-foreground transition-colors hover:text-primary"
                     >

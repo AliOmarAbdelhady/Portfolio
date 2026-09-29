@@ -4,10 +4,18 @@ import * as React from "react";
 import { motion, useReducedMotion, useInView } from "motion/react";
 import {
   Mail,
+  Phone,
   FileText,
   ArrowRight,
   Terminal,
 } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  Orcid,
+  Facebook,
+  Instagram,
+} from "@/components/ui/brand-icons";
 
 import { SITE, TERMINAL_LINES } from "@/lib/constants";
 import { SOCIAL_LINKS, type SocialLink } from "@/data/social-links";
@@ -27,9 +35,9 @@ import {
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
- * Resolve an icon glyph for a channel. Brand glyphs (GitHub, LinkedIn, ORCID)
- * were removed from lucide-react, so we render compact styled text marks for
- * those and keep the real Mail icon for email.
+ * Resolve an icon glyph for a channel. Brand glyphs (GitHub, LinkedIn, ORCID,
+ * Facebook, Instagram) are sourced from react-icons via brand-icons; Mail and
+ * Phone use lucide.
  */
 function ChannelIcon({
   icon,
@@ -38,21 +46,22 @@ function ChannelIcon({
   icon: SocialLink["icon"];
   className?: string;
 }) {
-  if (icon === "mail") return <Mail className={className} aria-hidden />;
-
-  // Brand marks rendered as monospace badges.
-  const mark = icon === "github" ? "GH" : icon === "linkedin" ? "in" : "iD";
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center justify-center rounded-[0.25em] bg-primary/15 font-mono text-[0.58em] font-bold leading-none tracking-tight",
-        className,
-      )}
-      aria-hidden
-    >
-      {mark}
-    </span>
-  );
+  switch (icon) {
+    case "mail":
+      return <Mail className={className} aria-hidden />;
+    case "phone":
+      return <Phone className={className} aria-hidden />;
+    case "github":
+      return <Github className={className} aria-hidden />;
+    case "linkedin":
+      return <Linkedin className={className} aria-hidden />;
+    case "facebook":
+      return <Facebook className={className} aria-hidden />;
+    case "instagram":
+      return <Instagram className={className} aria-hidden />;
+    case "orcid":
+      return <Orcid className={className} aria-hidden />;
+  }
 }
 
 /**
@@ -139,7 +148,9 @@ function TerminalTranscript() {
 
 /** A single contact-channel glass button. */
 function ChannelCard({ link }: { link: SocialLink }) {
-  const isMail = link.icon === "mail";
+  // mailto: and tel: open in the same tab; everything else is external.
+  const isExternal =
+    !link.href.startsWith("mailto:") && !link.href.startsWith("tel:");
   return (
     <StaggerItem className="h-full">
       <Magnetic strength={0.25} className="h-full w-full">
@@ -153,8 +164,8 @@ function ChannelCard({ link }: { link: SocialLink }) {
         >
           <a
             href={link.href}
-            target={isMail ? undefined : "_blank"}
-            rel={isMail ? undefined : "noopener noreferrer"}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noopener noreferrer" : undefined}
             aria-label={link.label}
             className="contents"
           >
@@ -173,7 +184,7 @@ function ChannelCard({ link }: { link: SocialLink }) {
             </p>
             <p className="truncate font-mono text-xs text-muted-foreground">
               {link.href && link.href !== "#"
-                ? link.href.replace(/^mailto:/, "")
+                ? link.href.replace(/^(mailto:|tel:)/, "")
                 : "set link"}
             </p>
           </div>
@@ -253,7 +264,7 @@ export default function ContactSection() {
     <section id="contact" className="relative scroll-mt-24">
       <div className="mx-auto w-full max-w-7xl px-6 py-24 md:py-32">
         <SectionHeading
-          index="08"
+          index="09"
           station="Final Transmission"
           title="Open a channel"
           subtitle="System online and receiving. Pick a frequency below or encode a direct message — every transmission is read."
@@ -320,9 +331,21 @@ export default function ContactSection() {
                     </a>
                   </Button>
                 </Magnetic>
-                <p className="font-mono text-sm text-text-soft">
-                  {SITE.email}
-                </p>
+                <div className="flex flex-col items-center gap-1 font-mono text-sm text-text-soft">
+                  <a
+                    href={`mailto:${SITE.email}`}
+                    className="transition-colors hover:text-primary"
+                  >
+                    {SITE.email}
+                  </a>
+                  <a
+                    href={`tel:${SITE.phone}`}
+                    className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"
+                  >
+                    <Phone className="size-3.5" aria-hidden />
+                    {SITE.phoneDisplay}
+                  </a>
+                </div>
               </div>
             </Reveal>
           </div>

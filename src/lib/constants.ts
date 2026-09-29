@@ -10,19 +10,19 @@ export const SITE = {
   firstName: "Ali",
   // Professional headline (tone per PROJECT_PLAN.md §22).
   headline:
-    "I build intelligent web systems, computer vision tools, and data-driven AI experiences.",
+    "I build computer vision systems, autonomous robotics, and data-driven AI experiences.",
   // Rotating role chips in the hero.
   roles: [
-    "AI / Machine Learning",
+    "AI & Machine Learning",
     "Computer Vision",
-    "Web Development",
+    "Robotics / ROS2",
+    "Full-Stack Web",
     "Data Science",
-    "Research Software",
   ],
   role: "Computer Science Student",
   institution: "Arab Academy for Science, Technology and Maritime Transport",
   institutionShort: "AASTMT",
-  location: "Egypt",
+  location: "Cairo, Egypt",
 
   // --- Real profile data (from GitHub) ---
   githubUsername: "AliOmarAbdelhady",
@@ -31,11 +31,20 @@ export const SITE = {
   orcid: "https://orcid.org/0009-0000-3269-4033",
   orcidId: "0009-0000-3269-4033",
 
-  // --- TODO: replace these placeholders before deploying ---
-  email: "ali.omar.abdelhady@gmail.com", // TODO: confirm real email
-  linkedinUrl: "https://www.linkedin.com/in/aliamarabdelhady", // TODO: confirm handle
-  resumeUrl: "", // TODO: drop a PDF in /public and set path (e.g. /resume.pdf)
-  url: "https://ali-portfolio.vercel.app", // TODO: set to the deployed URL (SEO canonical)
+  // --- Contact channels (verified against CV) ---
+  email: "aliomarsaleh2005@gmail.com",
+  // E.164 for tel: links; pretty form for display.
+  phone: "+201284420622",
+  phoneDisplay: "+20 128 442 0622",
+  linkedinUrl: "https://www.linkedin.com/in/ali-omar-saleh",
+  facebookUrl: "https://www.facebook.com/ali.omar.615266",
+  instagramUrl: "https://www.instagram.com/ali_omar_abdelhady/",
+
+  // CV served statically from /public.
+  resumeUrl: "/resume.pdf",
+
+  // TODO: set to the deployed URL (SEO canonical).
+  url: "https://ali-portfolio.vercel.app",
   available: true,
 } as const;
 
@@ -68,18 +77,23 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "repositories", label: "Code Vault", station: "Code Vault", index: "04" },
   { id: "ai-lab", label: "AI Lab", station: "Vision Lab", index: "05" },
   { id: "data", label: "Insights", station: "Insight Chamber", index: "06" },
-  { id: "timeline", label: "Journey", station: "Timeline Road", index: "07" },
-  { id: "contact", label: "Contact", station: "Final Transmission", index: "08" },
+  { id: "experience", label: "Experience", station: "Command Log", index: "07" },
+  { id: "timeline", label: "Journey", station: "Timeline Road", index: "08" },
+  { id: "contact", label: "Contact", station: "Final Transmission", index: "09" },
 ];
 
 export const NAV_LINKS = NAV_ITEMS.map(({ id, label }) => ({ id, label }));
 
-/** Animated dashboard metrics (Data Science section). */
+/**
+ * Animated dashboard metrics (Data Science section). Values reflect real
+ * shipped work — models trained, datasets processed, projects shipped, and the
+ * breadth of the stack — not aspirational rounding.
+ */
 export const DASHBOARD_METRICS = [
-  { label: "Models Built", value: 12, suffix: "+" },
-  { label: "Datasets Processed", value: 30, suffix: "+" },
-  { label: "Projects Shipped", value: 18, suffix: "+" },
-  { label: "Technologies", value: 40, suffix: "+" },
+  { label: "AI Models Trained", value: 6, suffix: "+" },
+  { label: "Datasets Processed", value: 10, suffix: "+" },
+  { label: "Projects Shipped", value: 5, suffix: "+" },
+  { label: "Technologies", value: 25, suffix: "+" },
 ] as const;
 
 /** Terminal transcript lines for the Contact section. */
@@ -88,7 +102,7 @@ export const TERMINAL_LINES = [
   { cmd: "contact.available()", out: SITE.available ? "true" : "false" },
   {
     cmd: "open.channels()",
-    out: "GitHub · ORCID · LinkedIn · Email",
+    out: "GitHub · LinkedIn · ORCID · Email · Phone",
   },
   { cmd: "whoami", out: `${SITE.name} — ${SITE.role}` },
 ] as const;
@@ -104,12 +118,16 @@ export const SEO = {
     "Ali Omar Abdelhady",
     "AI engineer",
     "computer vision",
+    "robotics",
+    "ROS2",
+    "autonomous underwater vehicle",
     "data science",
     "machine learning",
     "web development",
     "Next.js",
     "Python",
     "PyTorch",
+    "YOLO",
     "portfolio",
   ],
 } as const;

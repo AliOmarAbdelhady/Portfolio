@@ -7,3 +7,5 @@
 export { SiGithub as Github } from "react-icons/si";
 export { SiOrcid as Orcid } from "react-icons/si";
 export { FaLinkedinIn as Linkedin } from "react-icons/fa";
+export { FaFacebookF as Facebook } from "react-icons/fa";
+export { FaInstagram as Instagram } from "react-icons/fa";

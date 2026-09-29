@@ -11,48 +11,48 @@ export type TimelineItem = {
 };
 
 /**
- * Journey timeline. The education entry is real (AASTMT); milestone items are
- * representative placeholders — replace with your actual experience.
+ * Journey timeline — education and verifiable competition results, all sourced
+ * from the CV. Professional internships live in the Experience section.
  */
 export const TIMELINE: TimelineItem[] = [
   {
     id: "edu-aastmt",
-    period: "2023 — Present",
+    period: "2023 — 2027",
     title: "B.Sc. Computer Science",
-    org: SITE.institution,
+    org: `${SITE.institution} · Cairo, Egypt`,
     description:
-      "Studying core CS, AI, and data science — building projects across web, computer vision, and machine learning.",
-    tags: ["Computer Science", "AI", "Data Science"],
+      "Studying core CS, AI, and data science while building real systems across computer vision, autonomous robotics, and full-stack web. GPA 3.5 / 4.0.",
+    tags: ["Computer Science", "AI", "Data Science", "GPA 3.5/4.0"],
     accent: "primary",
   },
   {
-    id: "ml-projects",
-    period: "2024 — 2025",
-    title: "Machine Learning Engineering",
-    org: "Independent & Coursework",
+    id: "mate-rov-2026",
+    period: "2026",
+    title: "MATE ROV — 2nd Place",
+    org: "Marine Advanced Technology Education",
     description:
-      "Shipped end-to-end ML pipelines — detection, RAG, and decision-support — with reproducible evaluation.",
-    tags: ["PyTorch", "Computer Vision", "LLMs"],
-    accent: "secondary",
-  },
-  {
-    id: "cv-research",
-    period: "2024",
-    title: "Computer Vision Research",
-    org: "Research Projects",
-    description:
-      "Experimented with detection and segmentation models, focusing on evaluation rigor and deployment.",
-    tags: ["YOLO", "OpenCV", "Medical Imaging"],
+      "Placed 2nd at the MATE ROV regional competition as a team member — designing, building, and piloting a remotely operated underwater vehicle.",
+    tags: ["Robotics", "Engineering", "Teamwork"],
     accent: "tertiary",
   },
   {
-    id: "web-shipping",
-    period: "2023 — Present",
-    title: "Full-Stack Web Development",
-    org: "Freelance & Personal",
+    id: "mate-rov-2025",
+    period: "2025",
+    title: "MATE ROV — 2nd Place",
+    org: "Marine Advanced Technology Education",
     description:
-      "Built production-grade web apps with Next.js, TypeScript, and modern UI systems.",
-    tags: ["Next.js", "TypeScript", "Tailwind"],
-    accent: "success",
+      "Earned 2nd place at MATE ROV, contributing to the vehicle's software and systems engineering alongside the team.",
+    tags: ["Robotics", "Engineering", "Teamwork"],
+    accent: "secondary",
+  },
+  {
+    id: "acpc-2024",
+    period: "2024",
+    title: "ACPC — Participant",
+    org: "Arab Collegiate Programming Contest",
+    description:
+      "Competed in the ACPC, sharpening algorithmic problem-solving and competitive programming under timed contest conditions.",
+    tags: ["Competitive Programming", "Algorithms"],
+    accent: "warning",
   },
 ];

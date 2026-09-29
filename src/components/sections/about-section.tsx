@@ -3,6 +3,8 @@ import {
   MapPin,
   GitFork,
   ExternalLink,
+  Mail,
+  Phone,
 } from "lucide-react";
 
 import { SITE, FOCUS_AREAS } from "@/lib/constants";
@@ -120,19 +122,19 @@ export default function AboutSection() {
                   I&apos;m {SITE.name}, a {SITE.role.toLowerCase()} at{" "}
                   {SITE.institutionShort} in {SITE.location}. My work lives at
                   the intersection of software engineering and applied
-                  intelligence, where I build systems that turn raw data into
-                  interactive, decision-ready experiences.
+                  intelligence — computer vision, autonomous robotics, and the
+                  full-stack systems that bring them to life.
                 </p>
               </StaggerItem>
 
               <StaggerItem>
                 <p className="text-base leading-relaxed text-text-soft md:text-lg">
-                  I focus on connecting interfaces to models to decisions,
-                  spanning web platforms, computer vision pipelines, machine
-                  learning systems, and data science tooling. Whether I&apos;m
-                  training a vision model or shipping a full-stack interface
-                  around it, the goal is the same: turn capable models into
-                  products people can actually use.
+                  I&apos;ve built real-time object-detection systems, a ROS2-based
+                  autonomous underwater vehicle, and search-and-rescue AI that
+                  maps people to GPS coordinates from aerial imagery. Alongside
+                  that, I&apos;ve interned at Klenka and CIB and contribute to
+                  robotics and software teams — always turning capable models
+                  into systems people can actually use.
                 </p>
               </StaggerItem>
 
@@ -244,6 +246,20 @@ export default function AboutSection() {
                       external
                     >
                       {SITE.orcidId}
+                    </FactRow>
+                    <FactRow
+                      icon={Mail}
+                      label="Email"
+                      href={`mailto:${SITE.email}`}
+                    >
+                      {SITE.email}
+                    </FactRow>
+                    <FactRow
+                      icon={Phone}
+                      label="Phone"
+                      href={`tel:${SITE.phone}`}
+                    >
+                      {SITE.phoneDisplay}
                     </FactRow>
                   </div>
 

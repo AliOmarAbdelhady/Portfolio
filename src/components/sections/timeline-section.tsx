@@ -180,14 +180,14 @@ export default function TimelineSection() {
     <section id="timeline" className="relative scroll-mt-24">
       <div className="mx-auto w-full max-w-7xl px-6 py-24 md:py-32">
         <SectionHeading
-          index="07"
+          index="08"
           station="Timeline Road"
           title={
             <>
               The road so <span className="text-gradient">far</span>
             </>
           }
-          subtitle="Milestones along the journey — education, research, and the systems shipped in between."
+          subtitle="Milestones along the journey — education and competition results that mark the path so far."
         />
 
         {/* Timeline body. The rail lives inside this scroll-tracked wrapper. */}
@@ -206,12 +206,12 @@ export default function TimelineSection() {
           </ol>
         </div>
 
-        {/* Honest, subtle note: education is real, milestones are representative. */}
+        {/* Honest, subtle note: all entries are verifiable. */}
         <Reveal delay={0.1}>
           <p className="mt-12 max-w-2xl text-xs leading-relaxed text-muted-foreground/80 md:text-sm">
             <span className="font-mono text-muted-foreground">note —</span>{" "}
-            Education is verifiable; the milestone entries above are
-            representative of focus areas and may not reflect exact dates.
+            Every entry above is verifiable. Professional internships and roles
+            are detailed in the Experience section.
           </p>
         </Reveal>
       </div>
