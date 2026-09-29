@@ -102,11 +102,28 @@ export function ChatWidget() {
           )}
         </AnimatePresence>
 
+        {/* Persistent label — invites the click the idle animation hints at. */}
+        {!open && !nudge && (
+          <motion.button
+            type="button"
+            onClick={openChat}
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.2, duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="glass hidden cursor-pointer items-center rounded-full border border-border/60 px-3.5 py-1.5 font-mono text-xs font-medium whitespace-nowrap text-foreground shadow-lg transition-colors duration-300 hover:border-primary/50 sm:flex"
+          >
+            <span className="mr-1.5 size-1.5 animate-pulse-glow rounded-full bg-primary" />
+            Ask Ali&apos;s AI · ⌘J
+          </motion.button>
+        )}
+
         <button
           type="button"
           onClick={toggleChat}
           aria-label={open ? `Close ${CHATBOT_NAME} chat` : `Chat with ${CHATBOT_NAME} AI`}
-          className="group relative flex size-14 cursor-pointer items-center justify-center rounded-full border border-primary/40 bg-card/80 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/70 hover:shadow-[0_0_32px_-6px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
+          className={`group relative flex size-14 cursor-pointer items-center justify-center rounded-full border border-primary/40 bg-card/80 shadow-lg backdrop-blur-md transition-all duration-300 hover:border-primary/70 hover:shadow-[0_0_32px_-6px_color-mix(in_oklab,var(--primary)_55%,transparent)] ${
+            !open ? "animate-bob group-hover:[animation-play-state:paused] group-hover:-translate-y-0.5" : ""
+          }`}
         >
           {/* liquid blob halo — morphing gradient behind the portrait */}
           <span
@@ -141,10 +158,6 @@ export function ChatWidget() {
               <span className="relative size-2 rounded-full bg-primary shadow-[0_0_10px_2px_color-mix(in_oklab,var(--primary)_60%,transparent)]" />
             </span>
           )}
-          {/* hover label (desktop) */}
-          <span className="pointer-events-none absolute right-full mr-3 hidden items-center rounded-full border border-border/60 bg-card/80 px-3.5 py-1.5 font-mono text-xs font-medium whitespace-nowrap opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100 sm:flex">
-            Ask {CHATBOT_NAME} · ⌘J
-          </span>
         </button>
       </div>
     </>

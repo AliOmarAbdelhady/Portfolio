@@ -195,6 +195,7 @@
   --animate-liquid-morph: liquid-morph 9s ease-in-out infinite;
   --animate-aurora: aurora 8s ease-in-out infinite;
   --animate-aurora-slow: aurora-slow 11s ease-in-out infinite;
+  --animate-bob: bob 2.6s ease-in-out infinite;
 }
 
 /* =========================================================================
@@ -535,6 +536,15 @@ h1, h2, h3, h4 {
   50% {
     transform: translate(-18px, -12px) scale(1.15);
     opacity: 0.9;
+  }
+}
+/* Gentle idle bob for the AI launcher — attracts the eye without bouncing. */
+@keyframes bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }
 

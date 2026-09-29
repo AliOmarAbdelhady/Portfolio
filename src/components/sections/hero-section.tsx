@@ -77,7 +77,7 @@ export default function HeroSection() {
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_50%_42%,color-mix(in_oklab,var(--background)_72%,transparent),transparent_70%)]"
       />
 
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-6 py-32 text-center">
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-6 pb-24 pt-28 text-center">
         {/* Status badge */}
         <motion.div
           variants={variants}
@@ -100,7 +100,7 @@ export default function HeroSection() {
           custom={0.5}
           initial="hidden"
           animate="visible"
-          className="relative mt-8"
+          className="relative mt-6"
         >
           <span
             aria-hidden
@@ -110,12 +110,12 @@ export default function HeroSection() {
             aria-hidden
             className="absolute -inset-1 rounded-full border border-primary/30"
           />
-          <span className="relative block size-28 overflow-hidden rounded-full border border-primary/50 bg-surface shadow-[0_0_44px_-8px_color-mix(in_oklab,var(--primary)_75%,transparent)] md:size-32">
+          <span className="relative block size-24 overflow-hidden rounded-full border border-primary/50 bg-surface shadow-[0_0_44px_-8px_color-mix(in_oklab,var(--primary)_75%,transparent)] md:size-28">
             <Image
               src={SITE.avatarUrl}
               alt={`${SITE.name} portrait`}
               fill
-              sizes="(min-width: 768px) 128px, 112px"
+              sizes="(min-width: 768px) 112px, 96px"
               priority
               className="object-cover"
             />
