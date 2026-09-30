@@ -22,20 +22,20 @@ export type ExperienceItem = {
 export const EXPERIENCE: ExperienceItem[] = [
   {
     id: "klenka",
-    role: "Software Development Intern",
+    role: "Software Developer — Hybrid Work",
     org: "Klenka",
     period: "Jan 2026 — Present",
-    location: "New Cairo, Egypt",
+    location: "New Cairo, Egypt · Hybrid",
     summary:
-      "Ongoing internship on a multitenant CRM platform — from core search features to the Altanfeethi frontend and the Layla voice-AI mobile app.",
+      "Hybrid software development role on a multitenant CRM platform — from core search features to the Altanfeethi frontend and the Layla voice-AI mobile app.",
     highlights: [
-      "Developed a Saved Search feature for a multitenant CRM platform, enabling users to create, save, and reuse complex search queries across candidate, client, and vacancy grids.",
+      "Working in a hybrid model (on-site in New Cairo + remote), developing a multitenant CRM platform: shipped a Saved Search feature enabling users to create, save, and reuse complex search queries across candidate, client, and vacancy grids.",
       "Building the Altanfeethi frontend — an Nx monorepo shipping a member web app, an admin console, and an Expo mobile app over shared libraries, deployed to let-script.com.",
       "Developing Layla, an Expo voice-AI mobile app with EAS over-the-air updates for Android and iOS, plus SIP↔Gemini Live, FreeSWITCH, and Twilio telephony-AI bridges.",
       "Working with PostgreSQL full-text search, JSON filter rules, REST APIs, React, and Node.js within an agile team.",
     ],
-    tags: ["React", "Node.js", "PostgreSQL", "Nx", "Expo", "VoIP/AI"],
-    type: "internship",
+    tags: ["React", "Node.js", "PostgreSQL", "Nx", "Expo", "VoIP/AI", "Hybrid"],
+    type: "role",
     accent: "primary",
   },
   {
