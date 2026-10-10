@@ -1,23 +1,24 @@
 import type { NextConfig } from "next";
 
 /**
- * Strict CSP without 'unsafe-inline' for scripts. The single inline script
- * Next emits (next-themes' deterministic theme-init snippet) is pinned by
- * its SHA-256 — verified stable across builds. If next-themes or the
- * ThemeProvider config ever changes, recompute: serve the page, extract the
- * <script>…</script> body, base64(sha256(...)), update THEME_SCRIPT_HASH.
- * (A per-request nonce was not usable: Next 16 does not stamp nonces onto
- * its script tags, and strict-dynamic would then block everything.)
- * Dev keeps unsafe-inline/eval: React dev overlays and HMR require them.
+ * CSP notes (security review, 10 Oct 2026):
+ * script-src keeps 'unsafe-inline' after a full investigation — Next.js 16
+ * App Router inlines the RSC flight payload (self.__next_f.push, ~10KB,
+ * different every build) so hash-pinning can't cover it, experimental SRI
+ * does not externalize it, and per-request nonces are broken in Next 16
+ * (verified: nonce set on request headers + dynamic rendering, both
+ * bundlers — Next never stamps it onto script tags). Acceptable here
+ * because React escapes all rendered content and the app has no
+ * dangerouslySetInnerHTML/innerHTML sink, no accounts, no uploads.
+ * Do NOT remove the other directives; they are all enforced.
  */
-const THEME_SCRIPT_HASH = "sha256-osMMQj3FsFuFoINhDY6u/ERO7gP52tI8DTruJmDXHD8=";
 const isDev = process.env.NODE_ENV === "development";
 
 const csp = [
   "default-src 'self'",
   isDev
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-    : `script-src 'self' '${THEME_SCRIPT_HASH}'`,
+    : "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self' data:",
