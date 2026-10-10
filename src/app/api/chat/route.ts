@@ -92,11 +92,26 @@ function clientIp(req: Request): string {
 
 /** Common fields shared by every log entry for this request. */
 function logBase(req: Request, ip: string) {
+  // Vercel injects edge-computed geo headers (city is percent-encoded).
+  const decoded = (name: string): string | undefined => {
+    const v = req.headers.get(name);
+    if (!v) return undefined;
+    try {
+      return decodeURIComponent(v);
+    } catch {
+      return v;
+    }
+  };
   return {
     ts: new Date().toISOString(),
     ip,
     userAgent: req.headers.get("user-agent") ?? "unknown",
     referrer: req.headers.get("referer") ?? "none",
+    geo: {
+      city: decoded("x-vercel-ip-city"),
+      country: req.headers.get("x-vercel-ip-country") ?? undefined,
+      region: req.headers.get("x-vercel-ip-country-region") ?? undefined,
+    },
   };
 }
 
