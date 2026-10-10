@@ -55,8 +55,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: SITE.avatarUrl,
-        width: 400,
-        height: 400,
+        width: 800,
+        height: 800,
         alt: SITE.name,
       },
     ],

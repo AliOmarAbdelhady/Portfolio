@@ -27,7 +27,8 @@ export const SITE = {
   // --- Real profile data (from GitHub) ---
   githubUsername: "AliOmarAbdelhady",
   githubUrl: "https://github.com/AliOmarAbdelhady",
-  avatarUrl: "https://avatars.githubusercontent.com/u/191811402?v=4",
+  // Local portrait served from /public (square, face-centered crop).
+  avatarUrl: "/profile.jpg",
   orcid: "https://orcid.org/0009-0000-3269-4033",
   orcidId: "0009-0000-3269-4033",
 
@@ -43,8 +44,9 @@ export const SITE = {
   // CV served statically from /public.
   resumeUrl: "/resume.pdf",
 
-  // TODO: set to the deployed URL (SEO canonical).
-  url: "https://ali-portfolio.vercel.app",
+  // SEO canonical / metadataBase — must match the deployed domain so
+  // relative OG image URLs resolve correctly.
+  url: "https://ali-omar-abdelhady.vercel.app",
   available: true,
 } as const;
 
