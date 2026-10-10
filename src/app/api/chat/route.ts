@@ -14,6 +14,10 @@ import { recordChat } from "@/lib/chat-log";
  *    abuse, and max_tokens bounds the worst-case Groq spend per request.)
  *  - Hard generation caps: max_tokens + 30s upstream timeout + AbortController.
  *  - No CORS headers are emitted, so browsers can only call same-origin.
+ *    Cross-site browser POSTs are refused outright: text/plain "simple"
+ *    requests never bypass the JSON content-type gate, and a mismatched
+ *    Origin header (always sent by browsers on POST) is rejected with 403 —
+ *    other sites cannot burn the Groq budget or rate limit.
  *  - Every validated message is recorded to the private CHAT_LOG_REPO
  *    (see lib/chat-log.ts); rate-limited/malformed hits are logged too.
  */
@@ -144,6 +148,26 @@ function sse(token: string): Uint8Array {
 
 /* --------------------------------- route -------------------------------- */
 
+/**
+ * Admit only requests the site itself could have made. Browsers always send
+ * Origin on cross-origin (and fetch-POST) requests; non-browser clients
+ * (curl, server-to-server) omit it and stay allowed. Non-JSON content types
+ * are refused so a cross-site page cannot smuggle a "simple" text/plain POST
+ * past the browser's CORS preflight.
+ */
+function originAllowed(req: Request): boolean {
+  const contentType = (req.headers.get("content-type") ?? "").toLowerCase();
+  if (!contentType.startsWith("application/json")) return false;
+
+  const origin = req.headers.get("origin");
+  if (!origin) return true; // not a browser — cannot be CSRF'd
+  try {
+    return new URL(origin).host === req.headers.get("host");
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: Request) {
   const ip = clientIp(req);
   const limiter = rateLimited(ip);
@@ -155,6 +179,17 @@ export async function POST(req: Request) {
         message: "You're sending messages a bit too fast — take a breath and try again shortly.",
       },
       { status: 429, headers: { "retry-after": String(limiter.retryAfter) } },
+    );
+  }
+
+  if (!originAllowed(req)) {
+    recordChat(
+      { ...logBase(req, ip), type: "invalid", error: "cross_origin_or_content_type" },
+      "blocked",
+    );
+    return Response.json(
+      { error: "forbidden", message: "Chat requests must come from this site." },
+      { status: 403 },
     );
   }
 
