@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono, Orbitron } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/theme-provider";
@@ -117,6 +118,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          {/* Privacy-friendly, cookieless visitor analytics (Vercel dashboard → Analytics). */}
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
