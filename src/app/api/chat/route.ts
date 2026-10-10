@@ -1,4 +1,5 @@
 import { CHATBOT_SYSTEM_PROMPT } from "@/lib/chatbot-knowledge";
+import { recordChat } from "@/lib/chat-log";
 
 /**
  * POST /api/chat — portfolio AI assistant backed by Groq.
@@ -13,6 +14,8 @@ import { CHATBOT_SYSTEM_PROMPT } from "@/lib/chatbot-knowledge";
  *    abuse, and max_tokens bounds the worst-case Groq spend per request.)
  *  - Hard generation caps: max_tokens + 30s upstream timeout + AbortController.
  *  - No CORS headers are emitted, so browsers can only call same-origin.
+ *  - Every validated message is recorded to the private CHAT_LOG_REPO
+ *    (see lib/chat-log.ts); rate-limited/malformed hits are logged too.
  */
 
 export const runtime = "nodejs";
@@ -87,6 +90,16 @@ function clientIp(req: Request): string {
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 
+/** Common fields shared by every log entry for this request. */
+function logBase(req: Request, ip: string) {
+  return {
+    ts: new Date().toISOString(),
+    ip,
+    userAgent: req.headers.get("user-agent") ?? "unknown",
+    referrer: req.headers.get("referer") ?? "none",
+  };
+}
+
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 function sanitizeTranscript(input: unknown): ChatMessage[] | null {
@@ -117,8 +130,10 @@ function sse(token: string): Uint8Array {
 /* --------------------------------- route -------------------------------- */
 
 export async function POST(req: Request) {
-  const limiter = rateLimited(clientIp(req));
+  const ip = clientIp(req);
+  const limiter = rateLimited(ip);
   if (!limiter.ok) {
+    recordChat({ ...logBase(req, ip), type: "rate_limited" }, "blocked");
     return Response.json(
       {
         error: "rate_limited",
@@ -145,16 +160,23 @@ export async function POST(req: Request) {
 
   const transcript = sanitizeTranscript((body as Record<string, unknown>)?.messages);
   if (!transcript) {
+    recordChat({ ...logBase(req, ip), type: "invalid" }, "bad");
     return Response.json(
       { error: "bad_request", message: "Invalid message format." },
       { status: 400 },
     );
   }
 
+  // Log the visitor's transcript the moment it validates — the "-q" file is
+  // guaranteed even if the visitor closes the tab mid-reply.
+  recordChat({ ...logBase(req, ip), type: "chat", messages: transcript }, "q");
+
   // Try the primary model, fall back to the lighter one if it is unavailable.
+  const startedAt = Date.now();
+  let model: (typeof MODELS)[number] | undefined;
   let upstream: Response | null = null;
   let lastError = "upstream_error";
-  for (const model of MODELS) {
+  for (const candidate of MODELS) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
     try {
@@ -165,7 +187,7 @@ export async function POST(req: Request) {
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          model,
+          model: candidate,
           messages: [
             { role: "system", content: CHATBOT_SYSTEM_PROMPT },
             ...transcript,
@@ -177,7 +199,10 @@ export async function POST(req: Request) {
         }),
         signal: controller.signal,
       });
-      if (upstream.ok) break;
+      if (upstream.ok) {
+        model = candidate;
+        break;
+      }
       lastError = `upstream_${upstream.status}`;
       upstream = null;
     } catch (err) {
@@ -188,6 +213,10 @@ export async function POST(req: Request) {
   }
 
   if (!upstream || !upstream.body) {
+    recordChat(
+      { ...logBase(req, ip), type: "upstream_error", model, messages: transcript, error: lastError },
+      "err",
+    );
     return Response.json(
       { error: lastError, message: "The assistant is unreachable right now — please try again." },
       { status: 502 },
@@ -201,6 +230,7 @@ export async function POST(req: Request) {
       const decoder = new TextDecoder();
       const encoder = new TextEncoder();
       let buffer = "";
+      let reply = "";
       try {
         for (;;) {
           const { done, value } = await reader.read();
@@ -219,7 +249,10 @@ export async function POST(req: Request) {
                   choices?: { delta?: { content?: string } }[];
                 }
               ).choices?.[0]?.delta?.content;
-              if (delta) controller.enqueue(sse(delta));
+              if (delta) {
+                reply += delta;
+                controller.enqueue(sse(delta));
+              }
             } catch {
               // malformed chunk — skipping a token is cosmetic
             }
@@ -229,6 +262,19 @@ export async function POST(req: Request) {
       } catch {
         // upstream or client aborted mid-stream — end what we have
       } finally {
+        // Best-effort companion file with the assistant's reply ("-a").
+        recordChat(
+          {
+            ...logBase(req, ip),
+            type: "chat_completed",
+            model,
+            latencyMs: Date.now() - startedAt,
+            replyChars: reply.length,
+            reply: reply || undefined,
+            messages: transcript,
+          },
+          "a",
+        );
         controller.close();
       }
     },
